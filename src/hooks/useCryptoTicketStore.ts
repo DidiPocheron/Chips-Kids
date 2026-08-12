@@ -10,11 +10,16 @@ export function useCryptoTicketStore() {
   const [loaded, setLoaded] = useState(false);
 
   const fetchTickets = useCallback(async () => {
-    const q = query(collection(db, "crypto_tickets"), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as CryptoTicket[];
-    setTickets(data);
-    setLoaded(true);
+    try {
+      const q = query(collection(db, "crypto_tickets"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as CryptoTicket[];
+      setTickets(data);
+    } catch (err) {
+      console.error("useCryptoTicketStore: échec du chargement des tickets crypto", err);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);

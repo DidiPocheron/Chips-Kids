@@ -10,11 +10,16 @@ export function useBourseTicketStore() {
   const [loaded, setLoaded] = useState(false);
 
   const fetchTickets = useCallback(async () => {
-    const q = query(collection(db, "bourse_tickets"), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as BourseTicket[];
-    setTickets(data);
-    setLoaded(true);
+    try {
+      const q = query(collection(db, "bourse_tickets"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as BourseTicket[];
+      setTickets(data);
+    } catch (err) {
+      console.error("useBourseTicketStore: échec du chargement des tickets bourse", err);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);

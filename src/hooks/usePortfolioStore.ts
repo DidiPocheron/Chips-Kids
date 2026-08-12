@@ -14,11 +14,16 @@ export function usePortfolioStore(collectionName: string) {
   const [loaded, setLoaded] = useState(false);
 
   const fetchEntries = useCallback(async () => {
-    const q = query(collection(db, collectionName), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as PortfolioEntry[];
-    setEntries(data);
-    setLoaded(true);
+    try {
+      const q = query(collection(db, collectionName), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as PortfolioEntry[];
+      setEntries(data);
+    } catch (err) {
+      console.error(`usePortfolioStore(${collectionName}): échec du chargement`, err);
+    } finally {
+      setLoaded(true);
+    }
   }, [collectionName]);
 
   useEffect(() => {

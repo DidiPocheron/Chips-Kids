@@ -14,11 +14,16 @@ export function useCryptoLogStore() {
   const [loaded, setLoaded] = useState(false);
 
   const fetchEntries = useCallback(async () => {
-    const q = query(collection(db, "crypto_logbook"), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as CryptoLogEntry[];
-    setEntries(data);
-    setLoaded(true);
+    try {
+      const q = query(collection(db, "crypto_logbook"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as CryptoLogEntry[];
+      setEntries(data);
+    } catch (err) {
+      console.error("useCryptoLogStore: échec du chargement du carnet crypto", err);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
   useEffect(() => { fetchEntries(); }, [fetchEntries]);

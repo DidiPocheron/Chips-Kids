@@ -31,11 +31,16 @@ export function useSessionStore() {
   const [loaded, setLoaded] = useState(false);
 
   const fetchSessions = useCallback(async () => {
-    const q = query(collection(db, "sessions"), orderBy("date", "desc"));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as SessionPost[];
-    setSessions(data);
-    setLoaded(true);
+    try {
+      const q = query(collection(db, "sessions"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id })) as SessionPost[];
+      setSessions(data);
+    } catch (err) {
+      console.error("useSessionStore: échec du chargement des sessions", err);
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
