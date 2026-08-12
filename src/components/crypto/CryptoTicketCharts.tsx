@@ -2,9 +2,8 @@
 
 import {
   AreaChart, Area,
-  BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
-  ReferenceLine, ResponsiveContainer, Cell,
+  ReferenceLine, ResponsiveContainer,
 } from "recharts";
 import { useMemo } from "react";
 import { format, parseISO } from "date-fns";
@@ -70,6 +69,8 @@ export function CryptoTicketCharts({ tickets }: { tickets: CryptoTicket[] }) {
   if (points.length === 0) return null;
 
   const hasPnlData = points.some(p => p.pnl !== null);
+  const lastPnl = [...points].reverse().find(p => p.pnl !== null)?.pnl ?? 0;
+  const pnlColor = lastPnl >= 0 ? "oklch(0.65 0.17 145)" : "oklch(0.55 0.22 25)";
 
   return (
     <div className="space-y-6">
@@ -98,18 +99,20 @@ export function CryptoTicketCharts({ tickets }: { tickets: CryptoTicket[] }) {
         <div>
           <p className="text-sm font-medium text-muted-foreground mb-3">Gains / Pertes vs prix moyen d&apos;achat</p>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={points} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={points} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="cryptoPnlGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor={pnlColor} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={pnlColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} />
               <YAxis tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} tickFormatter={fmt} domain={["auto", "auto"]} width={75} />
               <Tooltip {...tooltipStyle()} formatter={(v) => [fmt(Number(v)), "P&L"]} />
               <ReferenceLine y={0} stroke="oklch(0.5 0 0)" strokeWidth={1} />
-              <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
-                {points.map((p, i) => (
-                  <Cell key={i} fill={(p.pnl ?? 0) >= 0 ? "oklch(0.65 0.17 145)" : "oklch(0.55 0.22 25)"} />
-                ))}
-              </Bar>
-            </BarChart>
+              <Area type="monotone" dataKey="pnl" stroke={pnlColor} strokeWidth={2} fill="url(#cryptoPnlGrad)" dot={{ r: 4, fill: pnlColor }} connectNulls />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       )}
