@@ -48,10 +48,11 @@ export function BankrollChart({ entries, referenceLine, color = GREEN, label = "
     ? Math.min(1, Math.max(0, (domainMax - (referenceLine as number)) / (domainMax - domainMin)))
     : 1;
 
-  const renderDot = (props: { cx?: number; cy?: number; value?: number }) => {
-    const { cx, cy, value } = props;
+  const renderDot = (props: { cx?: number; cy?: number; payload?: { amount?: number } }) => {
+    const { cx, cy, payload } = props;
     if (cx === undefined || cy === undefined) return <></>;
-    const color = hasThreshold && (value ?? 0) < (referenceLine as number) ? RED : GREEN;
+    const amount = payload?.amount ?? 0;
+    const color = hasThreshold && amount < (referenceLine as number) ? RED : GREEN;
     return <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={3} fill={color} stroke="none" />;
   };
 
