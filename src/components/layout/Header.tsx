@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS_POKER = [
@@ -33,6 +33,13 @@ const POKER_PATHS = NAV_LINKS_POKER.map(l => l.href);
 const CRYPTO_PATHS = NAV_LINKS_CRYPTO.map(l => l.href);
 const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
 const TRADING_PATHS = NAV_LINKS_TRADING.map(l => l.href);
+
+const NAV_GROUPS = [
+  { label: "Poker", links: NAV_LINKS_POKER },
+  { label: "Crypto", links: NAV_LINKS_CRYPTO },
+  { label: "Bourse", links: NAV_LINKS_BOURSE },
+  { label: "Trading", links: NAV_LINKS_TRADING },
+];
 
 function NavDropdown({
   label,
@@ -97,13 +104,18 @@ function NavDropdown({
 
 export function Header() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <img src="/logo-requin.png" alt="Logo" className="w-8 h-8 object-contain" />
-          <span className="font-heading font-bold text-xl text-foreground tracking-tight">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
+          <img src="/logo-requin.png" alt="Logo" className="w-8 h-8 object-contain shrink-0" />
+          <span className="font-heading font-bold text-base sm:text-xl text-foreground tracking-tight truncate">
             Chips <span className="text-[#5B9FD4]">&</span> Trade
           </span>
         </Link>
@@ -119,22 +131,47 @@ export function Header() {
           <NavDropdown label="Trading" links={NAV_LINKS_TRADING} activePaths={TRADING_PATHS} pathname={pathname} />
         </nav>
 
-        {/* Mobile */}
-        <nav className="flex md:hidden items-center gap-1">
-          {[...NAV_LINKS_POKER, ...NAV_LINKS_CRYPTO, ...NAV_LINKS_BOURSE, ...NAV_LINKS_TRADING].map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "px-2 py-1.5 rounded text-xs font-medium transition-colors",
-                pathname === href ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {label.split(" ")[0]}
-            </Link>
-          ))}
-        </nav>
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setMobileOpen((v) => !v)}
+          className="md:hidden shrink-0 p-2 -mr-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-expanded={mobileOpen}
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {/* Mobile panel */}
+      {mobileOpen && (
+        <nav className="md:hidden border-t border-border bg-card px-4 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+                  {group.label}
+                </p>
+                <div className="flex flex-col gap-0.5">
+                  {group.links.map(({ href, label }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={cn(
+                        "px-2.5 py-1.5 -mx-2.5 rounded-lg text-sm font-medium transition-colors",
+                        pathname === href
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
