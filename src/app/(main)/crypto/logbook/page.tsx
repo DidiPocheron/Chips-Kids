@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCryptoTicketStore } from "@/hooks/useCryptoTicketStore";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
@@ -74,7 +74,15 @@ function TicketCard({ ticket, prices, pricesLoading }: {
   pricesLoading: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
   const cfg = RATINGS[ticket.rating] ?? RATINGS.ras;
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+    setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+  }, [ticket.description]);
 
   const activeRows = PORTFOLIO_ROWS.filter(r => (ticket.portfolio[r.key] as number) > 0);
 
@@ -162,10 +170,10 @@ function TicketCard({ ticket, prices, pricesLoading }: {
 
         <ImageCarousel images={ticket.photos} />
 
-        <p className={cn("text-sm text-muted-foreground leading-relaxed whitespace-pre-line", !expanded && "line-clamp-4")}>
+        <p ref={descRef} className={cn("text-sm text-muted-foreground leading-relaxed whitespace-pre-line", !expanded && "line-clamp-4")}>
           {ticket.description}
         </p>
-        {ticket.description.length > 280 && (
+        {isTruncated && (
           <button onClick={() => setExpanded(!expanded)} className="mt-2 text-sm text-primary hover:text-primary/80 font-medium">
             {expanded ? "Voir moins" : "Lire la suite"}
           </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { useBourseTicketStore } from "@/hooks/useBourseTicketStore";
@@ -69,6 +69,14 @@ function AccountBlock({ label, portfolioValue, investedValue, pnl }: {
 
 function TicketCard({ ticket }: { ticket: BourseTicket }) {
   const [expanded, setExpanded] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+    setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+  }, [ticket.description]);
 
   const totalValue = ticket.ctPortfolioValue + ticket.peaPortfolioValue;
   const totalInvested = ticket.ctInvestedValue + ticket.peaInvestedValue;
@@ -103,10 +111,10 @@ function TicketCard({ ticket }: { ticket: BourseTicket }) {
 
         {ticket.description && (
           <>
-            <p className={cn("text-sm text-muted-foreground leading-relaxed whitespace-pre-line", !expanded && "line-clamp-4")}>
+            <p ref={descRef} className={cn("text-sm text-muted-foreground leading-relaxed whitespace-pre-line", !expanded && "line-clamp-4")}>
               {ticket.description}
             </p>
-            {ticket.description.length > 280 && (
+            {isTruncated && (
               <button onClick={() => setExpanded(!expanded)} className="mt-2 text-sm text-primary hover:text-primary/80 font-medium">
                 {expanded ? "Voir moins" : "Lire la suite"}
               </button>
