@@ -26,9 +26,6 @@ export default function NewCryptoEntryPage() {
   const router = useRouter();
   const { addEntry } = useCryptoLogStore();
 
-  useEffect(() => { if (!IS_ADMIN) router.replace("/crypto/logbook"); }, [router]);
-  if (!IS_ADMIN) return null;
-
   const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [type, setType] = useState<CryptoOperationType | null>(null);
@@ -39,6 +36,9 @@ export default function NewCryptoEntryPage() {
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => { if (!IS_ADMIN) router.replace("/crypto/logbook"); }, [router]);
+  if (!IS_ADMIN) return null;
 
   async function handleSubmit() {
     if (!type) { setError("Choisis un type d'opération."); return; }

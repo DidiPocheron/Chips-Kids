@@ -87,7 +87,7 @@ export function CryptoTicketCharts({ tickets }: { tickets: CryptoTicket[] }) {
             <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} />
             <YAxis tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} tickFormatter={fmt} domain={["auto", "auto"]} width={75} />
-            <Tooltip {...tooltipStyle()} formatter={(v: number) => [fmt(v), "Valeur"]} />
+            <Tooltip {...tooltipStyle()} formatter={(v) => [fmt(Number(v)), "Valeur"]} />
             <Area type="monotone" dataKey="value" stroke="oklch(0.65 0.18 255)" strokeWidth={2} fill="url(#cryptoValueGrad)" dot={{ r: 4, fill: "oklch(0.65 0.18 255)" }} />
           </AreaChart>
         </ResponsiveContainer>
@@ -102,7 +102,7 @@ export function CryptoTicketCharts({ tickets }: { tickets: CryptoTicket[] }) {
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} />
               <YAxis tick={{ fontSize: 11, fill: "oklch(0.6 0 0)" }} tickFormatter={fmt} domain={["auto", "auto"]} width={75} />
-              <Tooltip {...tooltipStyle()} formatter={(v: number) => [fmt(v), "P&L"]} />
+              <Tooltip {...tooltipStyle()} formatter={(v) => [fmt(Number(v)), "P&L"]} />
               <ReferenceLine y={0} stroke="oklch(0.5 0 0)" strokeWidth={1} />
               <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                 {points.map((p, i) => (

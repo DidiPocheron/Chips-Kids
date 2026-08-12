@@ -115,18 +115,18 @@ function PerfAnnualiseeCard() {
         >
           <div className="font-semibold text-sm mb-2">Pourquoi ce calcul est impossible ?</div>
           <p className="text-xs text-muted-foreground leading-relaxed mb-2">
-            La performance annualisée (TCAM) mesure le taux de croissance annuel moyen d'un capital fixe.
-            Elle n'est pertinente que si le montant investi est <strong className="text-foreground">stable dans le temps</strong>.
+            La performance annualisée (TCAM) mesure le taux de croissance annuel moyen d&apos;un capital fixe.
+            Elle n&apos;est pertinente que si le montant investi est <strong className="text-foreground">stable dans le temps</strong>.
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed mb-2">
-            Ici, les versements ont été très progressifs : une infime somme en 2017, presque rien jusqu'en 2021,
+            Ici, les versements ont été très progressifs : une infime somme en 2017, presque rien jusqu&apos;en 2021,
             puis une montée régulière, puis une accélération. Chaque nouveau versement <strong className="text-foreground">modifie la base de calcul</strong>,
             rendant le TCAM trompeur.
           </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
             Exemple : si 13 000 € sur 14 697 € ont été versés après 2022, calculer une perf sur 9 ans
             sous-estime massivement le rendement réel de ces sommes.
-            Sans l'historique précis de chaque versement et de la valeur du portefeuille à chaque date,
+            Sans l&apos;historique précis de chaque versement et de la valeur du portefeuille à chaque date,
             tout chiffre annualisé serait <strong className="text-foreground">artificiellement biaisé</strong>.
           </p>
         </div>
@@ -161,7 +161,7 @@ export default function HistoriquePEAPage() {
             </div>
           </div>
           <p className="text-muted-foreground max-w-2xl leading-relaxed">
-            Plan d'Épargne en Actions ouvert le <strong>{OUVERTURE}</strong> chez Boursorama, puis transféré chez{" "}
+            Plan d&apos;Épargne en Actions ouvert le <strong>{OUVERTURE}</strong> chez Boursorama, puis transféré chez{" "}
             <strong>Fortuneo</strong>. Peu de documents disponibles sur la période Boursorama, mais les versements et la
             valorisation actuelle permettent de dresser un bilan global.
           </p>
@@ -210,8 +210,8 @@ export default function HistoriquePEAPage() {
           <CardHeader>
             <CardTitle className="text-base">Versements cumulés estimés</CardTitle>
             <p className="text-xs text-muted-foreground">
-              Courbe indicative des versements — faible ouverture en 2017 pour faire courir le délai fiscal, montée progressive à partir de 2021, puis accélération jusqu'en 2026.
-              L'historique des valeurs de portefeuille n'est pas disponible sur toute la période.
+              Courbe indicative des versements — faible ouverture en 2017 pour faire courir le délai fiscal, montée progressive à partir de 2021, puis accélération jusqu&apos;en 2026.
+              L&apos;historique des valeurs de portefeuille n&apos;est pas disponible sur toute la période.
             </p>
           </CardHeader>
           <CardContent>
@@ -227,7 +227,7 @@ export default function HistoriquePEAPage() {
                 <XAxis dataKey="period" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${v}€`} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} width={45} />
                 <Tooltip
-                  formatter={(v: number) => [fmtEur(v), "Versements cumulés"]}
+                  formatter={(v) => [fmtEur(Number(v)), "Versements cumulés"]}
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                 />
                 <Area type="monotone" dataKey="cumul" stroke="#3b82f6" strokeWidth={2} fill="url(#peaGrad)" dot={false} />
@@ -246,9 +246,9 @@ export default function HistoriquePEAPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Le Plan d'Épargne en Actions est une <strong>enveloppe fiscale française</strong> qui permet d'investir en
-              actions européennes tout en bénéficiant d'une fiscalité allégée après <strong>5 ans de détention</strong>.
-              C'est la raison principale de son ouverture en 2017 : construire une épargne long terme avec un avantage
+              Le Plan d&apos;Épargne en Actions est une <strong>enveloppe fiscale française</strong> qui permet d&apos;investir en
+              actions européennes tout en bénéficiant d&apos;une fiscalité allégée après <strong>5 ans de détention</strong>.
+              C&apos;est la raison principale de son ouverture en 2017 : construire une épargne long terme avec un avantage
               fiscal croissant.
             </p>
 
@@ -256,7 +256,7 @@ export default function HistoriquePEAPage() {
               <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-4">
                 <div className="font-semibold text-sm mb-2">✅ Avantages</div>
                 <ul className="text-sm text-muted-foreground space-y-1.5">
-                  <li>• Exonération d'impôt sur le revenu après 5 ans</li>
+                  <li>• Exonération d&apos;impôt sur le revenu après 5 ans</li>
                   <li>• Plafond de versements élevé : <strong>150 000 €</strong></li>
                   <li>• Dividendes et plus-values capitalisent sans frottement fiscal</li>
                   <li>• Accès aux ETF et actions européennes</li>
@@ -266,9 +266,9 @@ export default function HistoriquePEAPage() {
               <div className="bg-muted/40 border border-border rounded-xl p-4">
                 <div className="font-semibold text-sm mb-2">⚠️ Contraintes</div>
                 <ul className="text-sm text-muted-foreground space-y-1.5">
-                  <li>• Réservé aux actions / ETF de l'UE/EEE</li>
+                  <li>• Réservé aux actions / ETF de l&apos;UE/EEE</li>
                   <li>• Tout retrait avant 5 ans entraîne la <strong>clôture du plan</strong></li>
-                  <li>• Pas d'accès aux actions US en direct (sauf via ETF)</li>
+                  <li>• Pas d&apos;accès aux actions US en direct (sauf via ETF)</li>
                   <li>• Les versements sont définitivement consommés après retrait</li>
                 </ul>
               </div>
@@ -280,7 +280,7 @@ export default function HistoriquePEAPage() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="text-base">Fiscalité selon la durée de détention</CardTitle>
-            <p className="text-xs text-muted-foreground">Taux applicables sur les plus-values et dividendes au moment d'un retrait</p>
+            <p className="text-xs text-muted-foreground">Taux applicables sur les plus-values et dividendes au moment d&apos;un retrait</p>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -310,9 +310,9 @@ export default function HistoriquePEAPage() {
             <div className="mt-4 p-3 bg-green-500/8 border border-green-500/20 rounded-lg">
               <p className="text-sm text-green-700 dark:text-green-400">
                 <strong>Mon PEA a été ouvert en mai 2017</strong> — il a donc largement dépassé les 5 ans.
-                En cas de retrait aujourd'hui, seuls les prélèvements sociaux de <strong>17,2 %</strong> s'appliquent,
+                En cas de retrait aujourd&apos;hui, seuls les prélèvements sociaux de <strong>17,2 %</strong> s&apos;appliquent,
                 soit une économie de 12,8 % par rapport à la flat tax standard. Sur{" "}
-                {fmtEur(PNL)} de plus-value, cela représente une économie d'environ{" "}
+                {fmtEur(PNL)} de plus-value, cela représente une économie d&apos;environ{" "}
                 <strong>{fmtEur(Math.round(PNL * 0.128))}</strong>.
               </p>
             </div>
@@ -328,10 +328,10 @@ export default function HistoriquePEAPage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
             <p>
-              Après réflexion, <strong>je ne souhaite plus alimenter ce PEA</strong> ni en retirer de l'argent dans l'immédiat.
+              Après réflexion, <strong>je ne souhaite plus alimenter ce PEA</strong> ni en retirer de l&apos;argent dans l&apos;immédiat.
               Les nouveaux investissements sont désormais orientés vers la <strong>crypto</strong>, le{" "}
               <strong>compte-titres ordinaire</strong> et le <strong>trading</strong>, qui offrent plus de flexibilité
-              et d'exposition à des actifs hors zone européenne.
+              et d&apos;exposition à des actifs hors zone européenne.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               <div className="bg-muted/40 rounded-lg p-3">
@@ -346,7 +346,7 @@ export default function HistoriquePEAPage() {
                 <div className="font-semibold text-foreground mb-1">Pourquoi ne pas retirer ?</div>
                 <ul className="space-y-1">
                   <li>• Fiscalité favorable acquise (uniquement 17,2 %)</li>
-                  <li>• Capitalisation libre à l'intérieur du plan</li>
+                  <li>• Capitalisation libre à l&apos;intérieur du plan</li>
                   <li>• Option de retrait partiel disponible sans clôture après 5 ans</li>
                   <li>• Filet de sécurité long terme</li>
                 </ul>
@@ -363,7 +363,7 @@ export default function HistoriquePEAPage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <div className="text-muted-foreground mb-1">Date d'ouverture</div>
+                <div className="text-muted-foreground mb-1">Date d&apos;ouverture</div>
                 <div className="font-semibold">{OUVERTURE}</div>
               </div>
               <div>

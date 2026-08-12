@@ -283,7 +283,7 @@ export default function BourseHistoriquePage() {
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
               <XAxis dataKey="period" tick={{ fontSize: 9, fill: "oklch(0.55 0 0)" }} interval={1} angle={-30} textAnchor="end" height={45} />
               <YAxis tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} tickFormatter={fmt} domain={[0, "auto"]} width={90} />
-              <Tooltip {...TS} formatter={(v: number) => [fmt(v), "Portefeuille"]} />
+              <Tooltip {...TS} formatter={(v) => [fmt(Number(v)), "Portefeuille"]} />
               <Area
                 type="monotone"
                 dataKey="value"
@@ -311,7 +311,7 @@ export default function BourseHistoriquePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
                 <XAxis dataKey="year" tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} />
                 <YAxis tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} tickFormatter={v => fmt(Math.abs(v))} domain={["auto", "auto"]} width={75} />
-                <Tooltip {...TS} formatter={(v: number) => [`${v >= 0 ? "+" : ""}${fmt(v)}`, "Réalisé"]} />
+                <Tooltip {...TS} formatter={(v) => { const n = Number(v); return [`${n >= 0 ? "+" : ""}${fmt(n)}`, "Réalisé"]; }} />
                 <ReferenceLine y={0} stroke="oklch(0.45 0 0)" />
                 <Bar dataKey="realise" radius={[4, 4, 0, 0]}>
                   {ANNUAL.map((d, i) => (
@@ -337,7 +337,7 @@ export default function BourseHistoriquePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
                 <XAxis dataKey="year" tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} />
                 <YAxis tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} tickFormatter={fmt} domain={[0, "auto"]} width={75} />
-                <Tooltip {...TS} formatter={(v: number) => [fmt(v), "Dividendes bruts"]} />
+                <Tooltip {...TS} formatter={(v) => [fmt(Number(v)), "Dividendes bruts"]} />
                 <Bar dataKey="dividendes" fill="oklch(0.78 0.15 85)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -448,7 +448,7 @@ export default function BourseHistoriquePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
                 <XAxis dataKey="period" tick={{ fontSize: 7, fill: "oklch(0.5 0 0)" }} interval={4} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.5 0 0)" }} tickFormatter={fmt} width={75} />
-                <Tooltip {...TS} formatter={(v: number) => [fmt(v), "Solde cash"]} />
+                <Tooltip {...TS} formatter={(v) => [fmt(Number(v)), "Solde cash"]} />
                 <Area type="monotone" dataKey="balance" stroke="oklch(0.65 0.18 255)" strokeWidth={1.5} fill="url(#cashGrad2)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
@@ -465,7 +465,7 @@ export default function BourseHistoriquePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
                 <XAxis dataKey="year" tick={{ fontSize: 11, fill: "oklch(0.55 0 0)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "oklch(0.55 0 0)" }} tickFormatter={v => fmt(Math.abs(v))} domain={["auto","auto"]} width={75} />
-                <Tooltip {...TS} formatter={(v: number, name: string) => [fmt(Math.abs(v)), name === "deposits" ? "Dépôts" : "Retraits"]} />
+                <Tooltip {...TS} formatter={(v, name) => [fmt(Math.abs(Number(v))), name === "deposits" ? "Dépôts" : "Retraits"]} />
                 <ReferenceLine y={0} stroke="oklch(0.45 0 0)" />
                 <Bar dataKey="deposits" fill="oklch(0.72 0.17 145)" radius={[3,3,0,0]} name="deposits" />
                 <Bar dataKey="withdrawals" fill="oklch(0.62 0.18 30)" radius={[3,3,0,0]} name="withdrawals" />
