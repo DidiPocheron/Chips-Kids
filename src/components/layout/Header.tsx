@@ -35,10 +35,10 @@ const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
 const TRADING_PATHS = NAV_LINKS_TRADING.map(l => l.href);
 
 const NAV_GROUPS = [
-  { label: "Poker", links: NAV_LINKS_POKER },
-  { label: "Crypto", links: NAV_LINKS_CRYPTO },
-  { label: "Bourse", links: NAV_LINKS_BOURSE },
-  { label: "Trading", links: NAV_LINKS_TRADING },
+  { label: "Poker", links: NAV_LINKS_POKER, color: "text-primary", border: "border-primary/20", bg: "bg-primary/5" },
+  { label: "Crypto", links: NAV_LINKS_CRYPTO, color: "text-orange-400", border: "border-orange-400/20", bg: "bg-orange-400/5" },
+  { label: "Bourse", links: NAV_LINKS_BOURSE, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/5" },
+  { label: "Trading", links: NAV_LINKS_TRADING, color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/5" },
 ];
 
 function NavDropdown({
@@ -144,11 +144,11 @@ export function Header() {
 
       {/* Mobile panel */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border bg-card px-4 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+        <nav className="md:hidden border-t border-border bg-card px-4 py-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="grid grid-cols-2 gap-3">
             {NAV_GROUPS.map((group) => (
-              <div key={group.label}>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+              <div key={group.label} className={cn("rounded-xl border p-3", group.border, group.bg)}>
+                <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", group.color)}>
                   {group.label}
                 </p>
                 <div className="flex flex-col gap-0.5">
@@ -157,10 +157,10 @@ export function Header() {
                       key={href}
                       href={href}
                       className={cn(
-                        "px-2.5 py-1.5 -mx-2.5 rounded-lg text-sm font-medium transition-colors",
+                        "px-2 py-1.5 -mx-2 rounded-lg text-sm font-medium transition-colors",
                         pathname === href
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground hover:bg-card/60"
                       )}
                     >
                       {label}
