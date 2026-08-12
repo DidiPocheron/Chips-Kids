@@ -13,16 +13,24 @@ import {
 import type { BankrollEntry } from "@/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useId } from "react";
 
 interface Props {
   entries: BankrollEntry[];
   referenceLine?: number;
+  color?: string;
+  label?: string;
 }
 
 const GREEN = "oklch(0.72 0.17 145)";
 const RED = "oklch(0.55 0.22 25)";
 
-export function BankrollChart({ entries, referenceLine }: Props) {
+export function BankrollChart({ entries, referenceLine, color = GREEN, label = "Bankroll" }: Props) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const gradId = `bankrollGradient-${uid}`;
+  const strokeSplitId = `bankrollStrokeSplit-${uid}`;
+  const fillSplitId = `bankrollFillSplit-${uid}`;
+
   const data = entries.map((e) => ({
     date: format(e.date, "dd/MM", { locale: fr }),
     amount: e.amount,
@@ -53,11 +61,11 @@ export function BankrollChart({ entries, referenceLine }: Props) {
         <defs>
           {hasThreshold ? (
             <>
-              <linearGradient id="bankrollStrokeSplit" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={strokeSplitId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset={offset} stopColor={GREEN} />
                 <stop offset={offset} stopColor={RED} />
               </linearGradient>
-              <linearGradient id="bankrollFillSplit" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={fillSplitId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset={0} stopColor={GREEN} stopOpacity={0.35} />
                 <stop offset={offset} stopColor={GREEN} stopOpacity={0.08} />
                 <stop offset={offset} stopColor={RED} stopOpacity={0.08} />
@@ -65,9 +73,9 @@ export function BankrollChart({ entries, referenceLine }: Props) {
               </linearGradient>
             </>
           ) : (
-            <linearGradient id="bankrollGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={GREEN} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={GREEN} stopOpacity={0} />
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           )}
         </defs>
@@ -81,7 +89,7 @@ export function BankrollChart({ entries, referenceLine }: Props) {
         <Tooltip
           contentStyle={{ backgroundColor: "oklch(0.17 0 0)", border: "1px solid oklch(1 0 0 / 10%)", borderRadius: "8px" }}
           labelStyle={{ color: "oklch(0.95 0 0)", fontSize: 12 }}
-          formatter={(value) => value != null ? [`${Number(value).toLocaleString("fr-FR")}€`, "Bankroll"] : []}
+          formatter={(value) => value != null ? [`${Number(value).toLocaleString("fr-FR")}€`, label] : []}
         />
         {hasThreshold && (
           <ReferenceLine y={referenceLine} stroke="oklch(0.6 0 0)" strokeDasharray="4 4" label={{ value: `${referenceLine}€`, fill: "oklch(0.6 0 0)", fontSize: 11 }} />
@@ -89,10 +97,10 @@ export function BankrollChart({ entries, referenceLine }: Props) {
         <Area
           type="monotone"
           dataKey="amount"
-          stroke={hasThreshold ? "url(#bankrollStrokeSplit)" : GREEN}
+          stroke={hasThreshold ? `url(#${strokeSplitId})` : color}
           strokeWidth={2}
-          fill={hasThreshold ? "url(#bankrollFillSplit)" : "url(#bankrollGradient)"}
-          dot={hasThreshold ? renderDot : { r: 3, fill: GREEN }}
+          fill={hasThreshold ? `url(#${fillSplitId})` : `url(#${gradId})`}
+          dot={hasThreshold ? renderDot : { r: 3, fill: color }}
         />
       </AreaChart>
     </ResponsiveContainer>

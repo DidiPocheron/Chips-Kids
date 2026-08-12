@@ -25,6 +25,24 @@ export default function BoursePage() {
     [sortedTickets]
   );
 
+  const peaEntries = useMemo(() =>
+    sortedTickets.map(t => ({
+      id: t.id,
+      date: new Date(t.date),
+      amount: t.peaPortfolioValue,
+    })),
+    [sortedTickets]
+  );
+
+  const ctEntries = useMemo(() =>
+    sortedTickets.map(t => ({
+      id: t.id,
+      date: new Date(t.date),
+      amount: t.ctPortfolioValue,
+    })),
+    [sortedTickets]
+  );
+
   const currentAmount = sortedTickets.length > 0
     ? sortedTickets[sortedTickets.length - 1].ctPortfolioValue + sortedTickets[sortedTickets.length - 1].peaPortfolioValue
     : 0;
@@ -103,6 +121,25 @@ export default function BoursePage() {
               <CardContent><BankrollChart entries={chartEntries} /></CardContent>
             </Card>
           )}
+
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
+            {peaEntries.length > 1 && (
+              <Card>
+                <CardHeader><CardTitle className="text-base">PEA</CardTitle></CardHeader>
+                <CardContent>
+                  <BankrollChart entries={peaEntries} color="oklch(0.65 0.18 255)" label="PEA" />
+                </CardContent>
+              </Card>
+            )}
+            {ctEntries.length > 1 && (
+              <Card>
+                <CardHeader><CardTitle className="text-base">Compte titre — Degiro</CardTitle></CardHeader>
+                <CardContent>
+                  <BankrollChart entries={ctEntries} color="oklch(0.75 0.15 80)" label="Compte titre" />
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </>
       )}
     </div>
