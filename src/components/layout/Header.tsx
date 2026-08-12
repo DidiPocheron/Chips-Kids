@@ -24,25 +24,15 @@ const NAV_LINKS_BOURSE = [
   { href: "/bourse/historique-pea", label: "Historique PEA 2017–2026" },
 ];
 
+const NAV_LINKS_TRADING = [
+  { href: "/trading", label: "Chiffres" },
+  { href: "/trading/strategie", label: "Stratégie" },
+];
+
 const POKER_PATHS = NAV_LINKS_POKER.map(l => l.href);
 const CRYPTO_PATHS = NAV_LINKS_CRYPTO.map(l => l.href);
 const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
-
-function NavLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-        pathname === href
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-      )}
-    >
-      {label}
-    </Link>
-  );
-}
+const TRADING_PATHS = NAV_LINKS_TRADING.map(l => l.href);
 
 function NavDropdown({
   label,
@@ -126,12 +116,12 @@ export function Header() {
           <div className="w-px h-4 bg-border mx-1" />
           <NavDropdown label="Bourse" links={NAV_LINKS_BOURSE} activePaths={BOURSE_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
-          <NavLink href="/trading" label="Trading" pathname={pathname} />
+          <NavDropdown label="Trading" links={NAV_LINKS_TRADING} activePaths={TRADING_PATHS} pathname={pathname} />
         </nav>
 
         {/* Mobile */}
         <nav className="flex md:hidden items-center gap-1">
-          {[...NAV_LINKS_POKER, ...NAV_LINKS_CRYPTO, ...NAV_LINKS_BOURSE, { href: "/trading", label: "Trading" }].map(({ href, label }) => (
+          {[...NAV_LINKS_POKER, ...NAV_LINKS_CRYPTO, ...NAV_LINKS_BOURSE, ...NAV_LINKS_TRADING].map(({ href, label }) => (
             <Link
               key={href}
               href={href}
