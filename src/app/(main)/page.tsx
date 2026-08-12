@@ -31,36 +31,40 @@ export default function HomePage() {
   const { prices } = useCryptoPrices();
 
   const bourse = useMemo(() => {
-    if (bourseTickets.length === 0) return { currentAmount: 0, firstAmount: 0 };
+    if (bourseTickets.length === 0) return { currentAmount: 0, pnl: 0, invested: 0 };
     const sorted = [...bourseTickets].sort((a, b) => a.date.localeCompare(b.date));
     const latest = sorted[sorted.length - 1];
-    const first = sorted[0];
     return {
       currentAmount: latest.ctPortfolioValue + latest.peaPortfolioValue,
-      firstAmount: first.ctPortfolioValue + first.peaPortfolioValue,
+      pnl: latest.ctPnl + latest.peaPnl,
+      invested: latest.ctInvestedValue + latest.peaInvestedValue,
     };
   }, [bourseTickets]);
 
-  const cryptoAmount = useMemo(() => {
-    if (tickets.length === 0) return 0;
+  const crypto = useMemo(() => {
+    if (tickets.length === 0) return { currentAmount: 0, pnl: 0, invested: 0 };
     const latest = [...tickets].sort((a, b) => b.date.localeCompare(a.date))[0];
     const p = latest.portfolio;
-    return (
-      (p.bitcoin  || 0) * (prices.bitcoin  ?? 0) +
-      (p.ethereum || 0) * (prices.ethereum ?? 0) +
-      (p.solana   || 0) * (prices.solana   ?? 0) +
-      (p.ripple   || 0) * (prices.ripple   ?? 0)
-    );
+    const rows = [
+      { qty: p.bitcoin  || 0, avg: p.bitcoinAvg  || 0, price: prices.bitcoin  ?? 0 },
+      { qty: p.ethereum || 0, avg: p.ethereumAvg || 0, price: prices.ethereum ?? 0 },
+      { qty: p.solana   || 0, avg: p.solanaAvg   || 0, price: prices.solana   ?? 0 },
+      { qty: p.ripple   || 0, avg: p.rippleAvg   || 0, price: prices.ripple   ?? 0 },
+    ];
+    const currentAmount = rows.reduce((s, r) => s + r.qty * r.price, 0);
+    const invested = rows.reduce((s, r) => s + (r.avg > 0 ? r.qty * r.avg : 0), 0);
+    return { currentAmount, pnl: invested > 0 ? currentAmount - invested : 0, invested };
   }, [tickets, prices]);
 
-  const total = currentBankroll.total + bourse.currentAmount + cryptoAmount + trading.currentAmount;
+  const total = currentBankroll.total + bourse.currentAmount + crypto.currentAmount + trading.currentAmount;
 
   const PORTFOLIOS = [
     {
       label: "Poker",
       href: "/bankroll",
       amount: currentBankroll.total,
-      first: 500,
+      pnl: currentBankroll.total - 500,
+      pct: 500 > 0 ? ((currentBankroll.total - 500) / 500) * 100 : 0,
       color: "text-primary",
       border: "border-primary/30",
       bg: "bg-primary/5",
@@ -74,31 +78,45 @@ export default function HomePage() {
       label: "Bourse",
       href: "/bourse",
       amount: bourse.currentAmount,
-      first: bourse.firstAmount,
+      pnl: bourse.pnl,
+      pct: bourse.invested > 0 ? (bourse.pnl / bourse.invested) * 100 : 0,
       color: "text-blue-400",
       border: "border-blue-400/30",
       bg: "bg-blue-400/5",
-      links: [],
+      links: [
+        { href: "/bourse", label: "Chiffres" },
+        { href: "/bourse/logbook", label: "Carnet de bord" },
+        { href: "/bourse/historique", label: "Historique CT" },
+        { href: "/bourse/historique-pea", label: "Historique PEA" },
+      ],
     },
     {
       label: "Crypto",
       href: "/crypto",
-      amount: cryptoAmount,
-      first: 0,
+      amount: crypto.currentAmount,
+      pnl: crypto.pnl,
+      pct: crypto.invested > 0 ? (crypto.pnl / crypto.invested) * 100 : 0,
       color: "text-orange-400",
       border: "border-orange-400/30",
       bg: "bg-orange-400/5",
-      links: [],
+      links: [
+        { href: "/crypto", label: "Chiffres" },
+        { href: "/crypto/logbook", label: "Carnet de bord" },
+      ],
     },
     {
       label: "Trading",
       href: "/trading",
       amount: trading.currentAmount,
-      first: trading.firstAmount,
+      pnl: trading.currentAmount - trading.firstAmount,
+      pct: trading.firstAmount > 0 ? ((trading.currentAmount - trading.firstAmount) / trading.firstAmount) * 100 : 0,
       color: "text-purple-400",
       border: "border-purple-400/30",
       bg: "bg-purple-400/5",
-      links: [],
+      links: [
+        { href: "/trading", label: "Chiffres" },
+        { href: "/trading/strategie", label: "Stratégie" },
+      ],
     },
   ];
 
@@ -121,11 +139,10 @@ export default function HomePage() {
 
       {/* Grille des portefeuilles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {PORTFOLIOS.map(({ label, href, amount, first, color, border, bg, links }, i) => {
-          const pnl = amount - first;
-          const pct = first > 0 ? (pnl / first) * 100 : 0;
+        {PORTFOLIOS.map(({ label, href, amount, pnl, pct, color, border, bg, links }, i) => {
           const isUp = pnl >= 0;
           const hasData = amount > 0;
+          const hasPnl = pnl !== 0 || pct !== 0;
 
           return (
             <motion.div key={label} initial="hidden" animate="visible" custom={0.1 + i * 0.05} variants={fadeUp}>
@@ -142,7 +159,7 @@ export default function HomePage() {
                     {hasData ? `${amount.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€` : "—"}
                   </div>
 
-                  {hasData && first > 0 && (
+                  {hasData && hasPnl && (
                     <div className={cn("flex items-center gap-1.5 text-sm", isUp ? "text-primary" : "text-destructive")}>
                       {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                       <span>{isUp ? "+" : ""}{pnl.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
