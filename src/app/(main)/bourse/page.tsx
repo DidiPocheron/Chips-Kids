@@ -43,15 +43,13 @@ export default function BoursePage() {
     [sortedTickets]
   );
 
-  const currentAmount = sortedTickets.length > 0
-    ? sortedTickets[sortedTickets.length - 1].ctPortfolioValue + sortedTickets[sortedTickets.length - 1].peaPortfolioValue
-    : 0;
-  const firstAmount = sortedTickets.length > 0
-    ? sortedTickets[0].ctPortfolioValue + sortedTickets[0].peaPortfolioValue
-    : 0;
+  const latestTicket = sortedTickets.length > 0 ? sortedTickets[sortedTickets.length - 1] : null;
 
-  const pnl = currentAmount - firstAmount;
-  const pct = firstAmount > 0 ? (pnl / firstAmount) * 100 : 0;
+  const currentAmount = latestTicket ? latestTicket.ctPortfolioValue + latestTicket.peaPortfolioValue : 0;
+  const investedAmount = latestTicket ? latestTicket.ctInvestedValue + latestTicket.peaInvestedValue : 0;
+
+  const pnl = latestTicket ? latestTicket.ctPnl + latestTicket.peaPnl : 0;
+  const pct = investedAmount > 0 ? (pnl / investedAmount) * 100 : 0;
   const isUp = pnl >= 0;
   const hasData = tickets.length > 0;
 
