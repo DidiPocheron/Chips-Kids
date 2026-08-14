@@ -11,6 +11,7 @@ const NAV_LINKS_POKER = [
   { href: "/logbook", label: "Carnet de bord" },
   { href: "/bankroll-management", label: "BRM" },
   { href: "/poker/cotes", label: "Cotes" },
+  { href: "/poker/bounty", label: "Bounty" },
 ];
 
 const NAV_LINKS_CRYPTO = [
