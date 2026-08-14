@@ -30,6 +30,18 @@ const LEAKS: Leak[] = [
     ],
     status: "actif",
   },
+  {
+    title: "Trop de tables ouvertes",
+    summary:
+      "J'ouvre trop de tables en même temps pour maximiser mon profit sur une soirée — une double erreur : je joue moins bien sur chaque table, et je n'ai plus le temps d'analyser mon jeu pendant la session.",
+    points: [
+      "Le multi-tabling excessif dégrade la qualité de chaque décision individuelle.",
+      "Moins de temps pour lire les adversaires et analyser les spots en profondeur pendant que je joue.",
+      "Ça renforce les automatismes au détriment de la réflexion — donc ça freine ma progression plutôt que de l'accélérer.",
+      "Règle actuelle : rester à 4 tables maximum, le temps de solidifier les bases.",
+    ],
+    status: "en travail",
+  },
 ];
 
 export default function PokerLeaksPage() {
