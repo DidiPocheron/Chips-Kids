@@ -73,6 +73,7 @@ export default function HomePage() {
         { href: "/logbook", label: "Carnet de bord" },
         { href: "/bankroll-management", label: "BRM" },
         { href: "/poker/cotes", label: "Cotes" },
+        { href: "/poker/leaks", label: "Leaks" },
       ],
     },
     {
