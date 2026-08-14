@@ -55,6 +55,28 @@ const LEAKS: Leak[] = [
     ],
     status: "en travail",
   },
+  {
+    title: "Je crédite trop les adversaires",
+    summary:
+      "Je pars du principe que l'adversaire a touché la plus grosse combinaison possible sur le board, et je sur-protège mes tirages au lieu de les jouer normalement.",
+    points: [
+      "Je lis le board avant de lire l'adversaire — je vois le pire scénario possible plutôt que sa range réelle.",
+      "Sur-protection des tirages : je check ou je call petit par peur, au lieu de bet/raise pour faire payer les mains faites ou faire fold l'équité adverse.",
+      "Cette peur du 'nut' adverse me fait perdre en value et en fold equity sur des spots où je suis souvent favori ou proche de 50/50.",
+    ],
+    status: "actif",
+  },
+  {
+    title: "Sur-bet pour chasser le KO",
+    summary:
+      "Comme je joue uniquement des KO, j'ai le réflexe de bet trop gros pour maximiser mes chances d'élimination — et ça me coûte de la value sur les spots où un adversaire aurait payé un sizing plus petit.",
+    points: [
+      "Je pense 'bounty' avant de penser 'value' : le sizing est choisi pour isoler/éliminer, pas pour maximiser le gain sur la main.",
+      "Contre des mains plus faibles qui auraient callé un bet raisonnable, je les fais fold avec un bet surdimensionné — value perdue.",
+      "Le KO est un bonus, pas l'objectif principal de chaque main : il faut d'abord sizer pour la value, le bounty vient en plus si l'adversaire est éliminé.",
+    ],
+    status: "actif",
+  },
 ];
 
 export default function PokerLeaksPage() {
