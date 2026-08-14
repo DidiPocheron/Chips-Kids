@@ -72,6 +72,7 @@ export default function HomePage() {
         { href: "/bankroll", label: "Résultats" },
         { href: "/logbook", label: "Carnet de bord" },
         { href: "/bankroll-management", label: "BRM" },
+        { href: "/poker/cotes", label: "Cotes" },
       ],
     },
     {

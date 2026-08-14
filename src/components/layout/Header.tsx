@@ -10,6 +10,7 @@ const NAV_LINKS_POKER = [
   { href: "/bankroll", label: "Résultats" },
   { href: "/logbook", label: "Carnet de bord" },
   { href: "/bankroll-management", label: "BRM" },
+  { href: "/poker/cotes", label: "Cotes" },
 ];
 
 const NAV_LINKS_CRYPTO = [
