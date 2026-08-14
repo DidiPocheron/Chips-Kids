@@ -5,11 +5,17 @@ import { cn } from "@/lib/utils";
 
 type LeakStatus = "actif" | "en travail" | "corrigé";
 
+interface LeakExample {
+  src: string;
+  caption: string;
+}
+
 interface Leak {
   title: string;
   summary: string;
   points: string[];
   status: LeakStatus;
+  examples?: LeakExample[];
 }
 
 const STATUS_STYLE: Record<LeakStatus, { label: string; className: string }> = {
@@ -29,6 +35,13 @@ const LEAKS: Leak[] = [
       "Call des tapis (all-in) trop craintif — je surestime la force de la range adverse et je fold des mains qui ont pourtant assez d'équité pour call.",
     ],
     status: "actif",
+    examples: [
+      {
+        src: "/leaks/leak-tight-example-1.jpg",
+        caption:
+          "Winamax Series — Q♠10♣, all-in preflop face à un pot de 42.9 BB. C'est un spot de raise/call ou shove direct que je ne prends pas encore.",
+      },
+    ],
   },
   {
     title: "Trop de tables ouvertes",
@@ -83,6 +96,23 @@ export default function PokerLeaksPage() {
                     </li>
                   ))}
                 </ul>
+
+                {leak.examples && leak.examples.length > 0 && (
+                  <div className="mt-5 pt-5 border-t border-border/50 space-y-4">
+                    {leak.examples.map((ex) => (
+                      <figure key={ex.src}>
+                        <img
+                          src={ex.src}
+                          alt={ex.caption}
+                          className="w-full rounded-xl border border-border/60"
+                        />
+                        <figcaption className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                          {ex.caption}
+                        </figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
