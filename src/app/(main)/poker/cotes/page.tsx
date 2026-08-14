@@ -110,6 +110,27 @@ export default function PokerCotesPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Convertir un bounty en bb */}
+      <Card className="mt-8 border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="text-base">Convertir un bounty en bb (quand tu couvres l&apos;adversaire)</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground leading-relaxed space-y-2">
+          <p className="text-foreground font-medium">
+            Bounty en bb = bounty (€) ÷ valeur de la bb actuelle (€)
+          </p>
+          <p>
+            En KO progressif (et sur Space KO Winamax), tu ne touches que la moitié du bounty en cash immédiat —
+            l&apos;autre moitié grossit ton propre bounty. Pour juger un call ou un shove, ajoute donc seulement{" "}
+            <strong className="text-foreground">la moitié</strong> du bounty-en-bb à ton équité, pas la totalité.
+          </p>
+          <p>
+            Exemple : bb à 0,40€, adversaire avec 8€ de bounty → 8 ÷ 0,40 = 20 bb, dont{" "}
+            <strong className="text-primary">10 bb</strong> à ajouter réellement à ton équité.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
