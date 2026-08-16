@@ -2,6 +2,50 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+interface SaleScenario {
+  label: string;
+  salePrice: number;
+}
+
+const MAISON_REMAINING_LOAN = 187000;
+const MAISON_SCENARIOS: SaleScenario[] = [
+  { label: "Estimation basse", salePrice: 250000 },
+  { label: "Objectif", salePrice: 280000 },
+];
+
+function formatEUR(n: number) {
+  return `${n.toLocaleString("fr-FR")} €`;
+}
+
+function ScenarioBlock({
+  label,
+  salePrice,
+  remainingLoan,
+}: {
+  label: string;
+  salePrice: number;
+  remainingLoan: number;
+}) {
+  const net = salePrice - remainingLoan;
+  return (
+    <div className="bg-muted/50 rounded-xl p-4">
+      <div className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{label}</div>
+      <div className="flex items-baseline justify-between text-sm mb-1">
+        <span className="text-muted-foreground">Prix de vente</span>
+        <span className="font-medium text-foreground tabular-nums">{formatEUR(salePrice)}</span>
+      </div>
+      <div className="flex items-baseline justify-between text-sm mb-3">
+        <span className="text-muted-foreground">Crédit restant dû</span>
+        <span className="font-medium text-foreground tabular-nums">- {formatEUR(remainingLoan)}</span>
+      </div>
+      <div className="flex items-baseline justify-between pt-3 border-t border-border/50">
+        <span className="text-sm font-semibold text-foreground">Net après vente</span>
+        <span className="text-lg font-bold text-primary tabular-nums">{formatEUR(net)}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function ImmobilierPage() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
@@ -22,19 +66,36 @@ export default function ImmobilierPage() {
       </div>
 
       <div className="space-y-4">
-        <Card className="border-dashed border-2 border-border/60 bg-transparent">
+        {/* Maison actuelle */}
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base">Produit net de la vente</CardTitle>
+            <CardTitle className="text-base">Maison actuelle</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            Prix de vente de la maison actuelle et de l&apos;appartement en location, moins le capital restant dû
-            sur chaque crédit → montant net disponible après vente.
-            <br />
-            <br />
-            En attente des chiffres.
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {MAISON_SCENARIOS.map((s) => (
+                <ScenarioBlock
+                  key={s.label}
+                  label={s.label}
+                  salePrice={s.salePrice}
+                  remainingLoan={MAISON_REMAINING_LOAN}
+                />
+              ))}
+            </div>
           </CardContent>
         </Card>
 
+        {/* Appartement en location */}
+        <Card className="border-dashed border-2 border-border/60 bg-transparent">
+          <CardHeader>
+            <CardTitle className="text-base">Appartement en location</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground leading-relaxed">
+            En attente du prix de vente et du crédit restant dû.
+          </CardContent>
+        </Card>
+
+        {/* Capacité d'emprunt */}
         <Card className="border-dashed border-2 border-border/60 bg-transparent">
           <CardHeader>
             <CardTitle className="text-base">Capacité d&apos;emprunt</CardTitle>
