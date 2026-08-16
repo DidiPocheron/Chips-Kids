@@ -19,8 +19,35 @@ const APPART_SCENARIOS: SaleScenario[] = [
   { label: "Objectif", salePrice: 95000 },
 ];
 
+const REVENU_MOI = 3050;
+const REVENU_COMPAGNE_MIN = 1500;
+const REVENU_COMPAGNE_MAX = 1750;
+const TAUX_ENDETTEMENT_MAX = 0.35; // norme HCSF standard, hors assurance
+
+interface IncomeScenario {
+  label: string;
+  combinedIncome: number;
+}
+
+const INCOME_SCENARIOS: IncomeScenario[] = [
+  { label: "Salaire compagne bas (1 500 €)", combinedIncome: REVENU_MOI + REVENU_COMPAGNE_MIN },
+  { label: "Salaire compagne haut (1 750 €)", combinedIncome: REVENU_MOI + REVENU_COMPAGNE_MAX },
+];
+
+// Taux indicatifs août 2026 (CAFPI / Meilleurtaux), hors assurance emprunteur.
+const LOAN_DURATIONS = [
+  { years: 20, rate: 0.033 },
+  { years: 25, rate: 0.0345 },
+];
+
+function borrowingCapacity(monthlyPayment: number, annualRate: number, years: number) {
+  const i = annualRate / 12;
+  const n = years * 12;
+  return monthlyPayment * ((1 - Math.pow(1 + i, -n)) / i);
+}
+
 function formatEUR(n: number) {
-  return `${n.toLocaleString("fr-FR")} €`;
+  return `${Math.round(n).toLocaleString("fr-FR")} €`;
 }
 
 function ScenarioBlock({
@@ -135,15 +162,54 @@ export default function ImmobilierPage() {
         </Card>
 
         {/* Capacité d'emprunt */}
-        <Card className="border-dashed border-2 border-border/60 bg-transparent">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">Capacité d&apos;emprunt</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            Estimation basée sur mes revenus et ceux de ma compagne.
-            <br />
-            <br />
-            En attente des chiffres.
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Basé sur un taux d&apos;endettement max de {TAUX_ENDETTEMENT_MAX * 100}% (norme HCSF) et des taux
+              indicatifs d&apos;août 2026, hors assurance emprunteur.
+            </p>
+
+            {INCOME_SCENARIOS.map((income) => {
+              const maxMonthly = income.combinedIncome * TAUX_ENDETTEMENT_MAX;
+              return (
+                <div key={income.label} className="bg-muted/50 rounded-xl p-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <div>
+                      <div className="text-xs text-muted-foreground uppercase tracking-wide">{income.label}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        Revenus combinés {formatEUR(income.combinedIncome)} / mois
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-foreground tabular-nums">{formatEUR(maxMonthly)}</div>
+                      <div className="text-[11px] text-muted-foreground uppercase tracking-wide">mensualité max</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {LOAN_DURATIONS.map((d) => (
+                      <div key={d.years} className="bg-card rounded-lg p-3 ring-1 ring-border/50">
+                        <div className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">
+                          Sur {d.years} ans ({(d.rate * 100).toFixed(2)}%)
+                        </div>
+                        <div className="text-xl font-bold text-primary tabular-nums">
+                          {formatEUR(borrowingCapacity(maxMonthly, d.rate, d.years))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Estimation indicative uniquement — ne tient pas compte de l&apos;assurance emprunteur, des frais de
+              dossier/garantie, ni du fait que le nouveau poste de ma compagne devra probablement être confirmé
+              (fin de période d&apos;essai / CDI) pour être pris en compte par une banque. À confirmer avec un
+              courtier ou une banque pour un chiffre définitif.
+            </p>
           </CardContent>
         </Card>
       </div>
