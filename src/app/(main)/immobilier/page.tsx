@@ -13,6 +13,12 @@ const MAISON_SCENARIOS: SaleScenario[] = [
   { label: "Objectif", salePrice: 280000 },
 ];
 
+const APPART_REMAINING_LOAN = 44000;
+const APPART_SCENARIOS: SaleScenario[] = [
+  { label: "Estimation basse", salePrice: 85000 },
+  { label: "Objectif", salePrice: 95000 },
+];
+
 function formatEUR(n: number) {
   return `${n.toLocaleString("fr-FR")} €`;
 }
@@ -86,12 +92,45 @@ export default function ImmobilierPage() {
         </Card>
 
         {/* Appartement en location */}
-        <Card className="border-dashed border-2 border-border/60 bg-transparent">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">Appartement en location</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground leading-relaxed">
-            En attente du prix de vente et du crédit restant dû.
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {APPART_SCENARIOS.map((s) => (
+                <ScenarioBlock
+                  key={s.label}
+                  label={s.label}
+                  salePrice={s.salePrice}
+                  remainingLoan={APPART_REMAINING_LOAN}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total combiné */}
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-base">Total combiné (maison + appartement)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {MAISON_SCENARIOS.map((s, i) => {
+                const total =
+                  s.salePrice -
+                  MAISON_REMAINING_LOAN +
+                  (APPART_SCENARIOS[i].salePrice - APPART_REMAINING_LOAN);
+                return (
+                  <div key={s.label} className="bg-card rounded-xl p-4 ring-1 ring-border/50">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{s.label}</div>
+                    <div className="text-2xl font-bold text-primary tabular-nums">{formatEUR(total)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">net disponible après remboursement des deux crédits</div>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
 
