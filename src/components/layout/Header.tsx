@@ -7,7 +7,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Toggle pour afficher/masquer la section Immobilier sur le site.
-const SHOW_IMMOBILIER = false;
+const SHOW_IMMOBILIER = true;
 
 const NAV_LINKS_POKER = [
   { href: "/bankroll", label: "Résultats" },
