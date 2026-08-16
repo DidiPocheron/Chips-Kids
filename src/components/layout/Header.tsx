@@ -6,6 +6,9 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Toggle pour afficher/masquer la section Immobilier sur le site.
+const SHOW_IMMOBILIER = false;
+
 const NAV_LINKS_POKER = [
   { href: "/bankroll", label: "Résultats" },
   { href: "/logbook", label: "Carnet de bord" },
@@ -31,16 +34,24 @@ const NAV_LINKS_TRADING = [
   { href: "/trading/strategie", label: "Stratégie" },
 ];
 
+const NAV_LINKS_IMMOBILIER = [
+  { href: "/immobilier", label: "Vente & emprunt" },
+];
+
 const POKER_PATHS = NAV_LINKS_POKER.map(l => l.href);
 const CRYPTO_PATHS = NAV_LINKS_CRYPTO.map(l => l.href);
 const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
 const TRADING_PATHS = NAV_LINKS_TRADING.map(l => l.href);
+const IMMOBILIER_PATHS = NAV_LINKS_IMMOBILIER.map(l => l.href);
 
 const NAV_GROUPS = [
   { label: "Poker", links: NAV_LINKS_POKER, color: "text-primary", border: "border-primary/20", bg: "bg-primary/5" },
   { label: "Crypto", links: NAV_LINKS_CRYPTO, color: "text-orange-400", border: "border-orange-400/20", bg: "bg-orange-400/5" },
   { label: "Bourse", links: NAV_LINKS_BOURSE, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/5" },
   { label: "Trading", links: NAV_LINKS_TRADING, color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/5" },
+  ...(SHOW_IMMOBILIER
+    ? [{ label: "Immobilier", links: NAV_LINKS_IMMOBILIER, color: "text-rose-400", border: "border-rose-400/20", bg: "bg-rose-400/5" }]
+    : []),
 ];
 
 function NavDropdown({
@@ -131,6 +142,12 @@ export function Header() {
           <NavDropdown label="Bourse" links={NAV_LINKS_BOURSE} activePaths={BOURSE_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
           <NavDropdown label="Trading" links={NAV_LINKS_TRADING} activePaths={TRADING_PATHS} pathname={pathname} />
+          {SHOW_IMMOBILIER && (
+            <>
+              <div className="w-px h-4 bg-border mx-1" />
+              <NavDropdown label="Immobilier" links={NAV_LINKS_IMMOBILIER} activePaths={IMMOBILIER_PATHS} pathname={pathname} />
+            </>
+          )}
         </nav>
 
         {/* Mobile toggle */}
