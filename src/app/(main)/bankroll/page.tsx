@@ -20,6 +20,7 @@ export default function BankrollPage() {
     { name: "Winamax", amount: currentBankroll.winamax },
     { name: "PokerStars", amount: currentBankroll.pokerstars },
     { name: "Unibet", amount: currentBankroll.unibet ?? 0 },
+    { name: "PMU", amount: currentBankroll.pmu ?? 0 },
     { name: "Porte-monnaie", amount: currentBankroll.wallet },
   ];
 

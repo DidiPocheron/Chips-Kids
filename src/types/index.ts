@@ -46,6 +46,7 @@ export interface SessionBankroll {
   winamax: number;
   pokerstars: number;
   unibet: number;
+  pmu: number;
   wallet: number;
   total: number;
 }

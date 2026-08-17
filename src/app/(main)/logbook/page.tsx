@@ -138,9 +138,10 @@ function SessionCard({ post, prevTotal }: { post: SessionPost; prevTotal: number
           </button>
         )}
 
-        <div className="flex gap-4 text-xs text-muted-foreground mt-4 pt-4 border-t border-border/50">
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-4 pt-4 border-t border-border/50">
           <span>Winamax <span className="font-medium text-foreground tabular-nums">{post.bankroll.winamax}€</span></span>
           <span>PokerStars <span className="font-medium text-foreground tabular-nums">{post.bankroll.pokerstars}€</span></span>
+          <span>PMU <span className="font-medium text-foreground tabular-nums">{post.bankroll.pmu ?? 0}€</span></span>
           <span>Porte-monnaie <span className="font-medium text-foreground tabular-nums">{post.bankroll.wallet}€</span></span>
         </div>
       </CardContent>
