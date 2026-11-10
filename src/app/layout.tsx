@@ -16,7 +16,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "Chips & Trade",
-  description: "Suivi de mes portefeuilles : poker, bourse, crypto et trading.",
+  description: "Suivi de mes portefeuilles : poker, bourse et crypto.",
 };
 
 export default function RootLayout({

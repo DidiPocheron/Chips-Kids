@@ -19,6 +19,7 @@ const INITIAL_BANKROLL: SessionBankroll = {
   pokerstars: 0,
   unibet: 0,
   pmu: 0,
+  betclic: 0,
   wallet: 460,
   total: 500,
 };

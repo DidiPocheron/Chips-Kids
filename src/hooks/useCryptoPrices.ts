@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 
 export type PriceMap = Record<string, number | null>;
 
-const COINGECKO_IDS = "bitcoin,ethereum,solana,ripple";
-
+// Passe par /api/crypto-prices (proxy côté serveur) plutôt que d'appeler
+// api.coingecko.com directement depuis le navigateur -- CoinGecko ne renvoie
+// pas d'en-têtes CORS pour les requêtes client-side, donc un fetch direct
+// échoue silencieusement ici et faisait disparaître le montant crypto.
 export function useCryptoPrices() {
   const [prices, setPrices] = useState<PriceMap>({});
   const [loading, setLoading] = useState(true);
@@ -16,17 +18,14 @@ export function useCryptoPrices() {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${COINGECKO_IDS}&vs_currencies=eur`,
-        { next: { revalidate: 0 } }
-      );
+      const res = await fetch("/api/crypto-prices", { cache: "no-store" });
       if (!res.ok) throw new Error("fetch failed");
       const data = await res.json();
       setPrices({
-        bitcoin: data.bitcoin?.eur ?? null,
-        ethereum: data.ethereum?.eur ?? null,
-        solana: data.solana?.eur ?? null,
-        ripple: data.ripple?.eur ?? null,
+        bitcoin: data.bitcoin ?? null,
+        ethereum: data.ethereum ?? null,
+        solana: data.solana ?? null,
+        ripple: data.ripple ?? null,
       });
       setLastUpdated(new Date());
     } catch {

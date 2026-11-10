@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BankrollChart } from "@/components/bankroll/BankrollChart";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Euro, Percent, History } from "lucide-react";
+import { TrendingUp, TrendingDown, Euro, Percent, History, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBourseTicketStore } from "@/hooks/useBourseTicketStore";
+import { PageLoader } from "@/components/PageLoader";
+import { AuthLock } from "@/components/auth/AuthLock";
 
 export default function BoursePage() {
   const { tickets, loaded } = useBourseTicketStore();
@@ -54,12 +56,20 @@ export default function BoursePage() {
   const hasData = tickets.length > 0;
 
   return (
+    <AuthLock>
     <div className="container mx-auto px-4 py-10 max-w-5xl">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-1">Bourse</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-sm">Portefeuille actions</p>
+            <Link
+              href="/bourse/portefeuille"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors border border-border/50 rounded-md px-2 py-1"
+            >
+              <Activity className="w-3 h-3" />
+              Portefeuille en direct
+            </Link>
             <Link
               href="/bourse/historique"
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors border border-border/50 rounded-md px-2 py-1"
@@ -71,7 +81,9 @@ export default function BoursePage() {
         </div>
       </div>
 
-      {!hasData && loaded ? (
+      {!loaded ? (
+        <PageLoader />
+      ) : !hasData ? (
         <div className="text-center py-24 text-muted-foreground">
           <p>Aucune donnée pour l&apos;instant.</p>
         </div>
@@ -141,5 +153,6 @@ export default function BoursePage() {
         </>
       )}
     </div>
+    </AuthLock>
   );
 }

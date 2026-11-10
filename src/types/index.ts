@@ -47,6 +47,7 @@ export interface SessionBankroll {
   pokerstars: number;
   unibet: number;
   pmu: number;
+  betclic: number;
   wallet: number;
   total: number;
 }
@@ -65,7 +66,7 @@ export interface BankrollTier {
   maxAmount: number | null;
   label: string;
   tournaments: string;
-  expressos: string;
+  spins: string;
   minBuyIn: string;
 }
 
@@ -112,3 +113,4 @@ export interface BetCounts {
   "50€": number;
   "100€": number;
 }
+

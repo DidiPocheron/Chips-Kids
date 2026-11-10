@@ -6,6 +6,8 @@ import { useCryptoTicketStore } from "@/hooks/useCryptoTicketStore";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 import { cn } from "@/lib/utils";
 import { RefreshCw, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { SortOrderToggle, type SortOrder } from "@/components/SortOrderToggle";
+import { PageLoader } from "@/components/PageLoader";
 import type { CryptoTicket, CryptoPortfolio } from "@/types";
 
 const RATINGS: Record<string, { src: string; label: string; accent: string; color: string }> = {
@@ -186,6 +188,11 @@ function TicketCard({ ticket, prices, pricesLoading }: {
 export default function CryptoLogbookPage() {
   const { tickets, loaded } = useCryptoTicketStore();
   const { prices, loading: pricesLoading, error: pricesError, refresh, lastUpdated } = useCryptoPrices();
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+  // `tickets` vient déjà trié du plus récent au plus ancien (query Firestore) ;
+  // le switch n'inverse que la liste affichée.
+  const orderedTickets = sortOrder === "asc" ? [...tickets].reverse() : tickets;
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
@@ -194,7 +201,8 @@ export default function CryptoLogbookPage() {
           <h1 className="text-3xl font-bold mb-1">Crypto — Carnet de bord</h1>
           <p className="text-muted-foreground">{tickets.length} ticket{tickets.length !== 1 ? "s" : ""}</p>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-end gap-2">
+          <SortOrderToggle order={sortOrder} onChange={setSortOrder} />
           <button
             onClick={refresh}
             disabled={pricesLoading}
@@ -212,6 +220,8 @@ export default function CryptoLogbookPage() {
         </div>
       </div>
 
+      {!loaded && <PageLoader />}
+
       {loaded && tickets.length === 0 && (
         <div className="text-center py-20">
           <p className="text-4xl mb-4">₿</p>
@@ -220,7 +230,7 @@ export default function CryptoLogbookPage() {
       )}
 
       <div className="space-y-4">
-        {tickets.map(ticket => (
+        {orderedTickets.map(ticket => (
           <TicketCard key={ticket.id} ticket={ticket} prices={prices} pricesLoading={pricesLoading} />
         ))}
       </div>

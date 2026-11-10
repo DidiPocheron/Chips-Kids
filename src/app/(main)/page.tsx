@@ -6,11 +6,15 @@ import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSessionStore } from "@/hooks/useSessionStore";
-import { usePortfolioStore } from "@/hooks/usePortfolioStore";
 import { useBourseTicketStore } from "@/hooks/useBourseTicketStore";
 import { useCryptoTicketStore } from "@/hooks/useCryptoTicketStore";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
+import { usePortfolioStore } from "@/hooks/usePortfolioStore";
 import { cn } from "@/lib/utils";
+import { AuthLock } from "@/components/auth/AuthLock";
+import { Spinner } from "@/components/ui/spinner";
+import { ConsolidatedChart } from "@/components/ConsolidatedChart";
+import type { DatedValue } from "@/lib/consolidatedSeries";
 import type { Easing } from "framer-motion";
 
 const EASE_OUT: Easing = "easeOut";
@@ -24,11 +28,20 @@ const fadeUp = {
 };
 
 export default function HomePage() {
-  const { currentBankroll } = useSessionStore();
-  const trading = usePortfolioStore("portfolio_trading");
-  const { tickets: bourseTickets } = useBourseTicketStore();
-  const { tickets } = useCryptoTicketStore();
-  const { prices } = useCryptoPrices();
+  const { sessions, currentBankroll, loaded: sessionsLoaded } = useSessionStore();
+  const { tickets: bourseTickets, loaded: bourseLoaded } = useBourseTicketStore();
+  const { tickets, loaded: cryptoTicketsLoaded } = useCryptoTicketStore();
+  const { prices, loading: pricesLoading } = useCryptoPrices();
+  const { entries: cryptoEntries, loaded: cryptoEntriesLoaded } = usePortfolioStore("portfolio_crypto");
+  // Le montant crypto dépend à la fois des tickets (Firestore) et des cours
+  // en direct (Kraken) : tant que l'un des deux n'est pas arrivé, le montant
+  // calculé serait faux (basé sur un prix à 0) -- on attend les deux.
+  const cryptoLoaded = cryptoTicketsLoaded && !pricesLoading;
+  const allLoaded = sessionsLoaded && bourseLoaded && cryptoLoaded;
+  // Le graphique d'évolution a sa propre condition de chargement : il a aussi
+  // besoin de l'historique des entrées crypto manuelles (non requis pour le
+  // gros chiffre "Total consolidé" ci-dessus).
+  const chartLoaded = sessionsLoaded && bourseLoaded && cryptoEntriesLoaded && cryptoLoaded;
 
   const bourse = useMemo(() => {
     if (bourseTickets.length === 0) return { currentAmount: 0, pnl: 0, invested: 0 };
@@ -56,7 +69,22 @@ export default function HomePage() {
     return { currentAmount, pnl: invested > 0 ? currentAmount - invested : 0, invested };
   }, [tickets, prices]);
 
-  const total = currentBankroll.total + bourse.currentAmount + crypto.currentAmount + trading.currentAmount;
+  // Séries datées pour le graphique d'évolution : chaque source garde sa
+  // propre valeur réelle à sa propre date (voir src/lib/consolidatedSeries.ts).
+  const pokerPoints: DatedValue[] = useMemo(
+    () => sessions.map((s) => ({ date: s.date, value: s.bankroll.total })),
+    [sessions]
+  );
+  const boursePoints: DatedValue[] = useMemo(
+    () => bourseTickets.map((t) => ({ date: t.date, value: t.ctPortfolioValue + t.peaPortfolioValue })),
+    [bourseTickets]
+  );
+  const cryptoPoints: DatedValue[] = useMemo(
+    () => cryptoEntries.map((e) => ({ date: e.date, value: e.amount })),
+    [cryptoEntries]
+  );
+
+  const total = currentBankroll.total + bourse.currentAmount + crypto.currentAmount;
 
   const PORTFOLIOS = [
     {
@@ -68,12 +96,11 @@ export default function HomePage() {
       color: "text-primary",
       border: "border-primary/30",
       bg: "bg-primary/5",
+      loaded: sessionsLoaded,
       links: [
         { href: "/bankroll", label: "Résultats" },
         { href: "/logbook", label: "Carnet de bord" },
         { href: "/bankroll-management", label: "BRM" },
-        { href: "/poker/cotes", label: "Cotes" },
-        { href: "/poker/leaks", label: "Leaks" },
       ],
     },
     {
@@ -85,6 +112,7 @@ export default function HomePage() {
       color: "text-blue-400",
       border: "border-blue-400/30",
       bg: "bg-blue-400/5",
+      loaded: bourseLoaded,
       links: [
         { href: "/bourse", label: "Chiffres" },
         { href: "/bourse/logbook", label: "Carnet de bord" },
@@ -101,23 +129,10 @@ export default function HomePage() {
       color: "text-orange-400",
       border: "border-orange-400/30",
       bg: "bg-orange-400/5",
+      loaded: cryptoLoaded,
       links: [
         { href: "/crypto", label: "Chiffres" },
         { href: "/crypto/logbook", label: "Carnet de bord" },
-      ],
-    },
-    {
-      label: "Trading",
-      href: "/trading",
-      amount: trading.currentAmount,
-      pnl: trading.currentAmount - trading.firstAmount,
-      pct: trading.firstAmount > 0 ? ((trading.currentAmount - trading.firstAmount) / trading.firstAmount) * 100 : 0,
-      color: "text-purple-400",
-      border: "border-purple-400/30",
-      bg: "bg-purple-400/5",
-      links: [
-        { href: "/trading", label: "Chiffres" },
-        { href: "/trading/strategie", label: "Stratégie" },
       ],
     },
   ];
@@ -134,17 +149,66 @@ export default function HomePage() {
       {/* Total consolidé */}
       <motion.div initial="hidden" animate="visible" custom={0.05} variants={fadeUp} className="mb-10">
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2">Total consolidé</div>
-        <div className="text-5xl font-bold text-foreground tabular-nums">
-          {total.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€
+        <div className="text-5xl font-bold text-foreground tabular-nums flex items-center gap-3">
+          {allLoaded ? (
+            `${total.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€`
+          ) : (
+            <Spinner className="w-8 h-8 text-muted-foreground" />
+          )}
         </div>
+      </motion.div>
+
+      {/* Évolution du total consolidé */}
+      <motion.div initial="hidden" animate="visible" custom={0.08} variants={fadeUp} className="mb-8">
+        <ConsolidatedChart
+          pokerPoints={pokerPoints}
+          boursePoints={boursePoints}
+          cryptoPoints={cryptoPoints}
+          liveTotal={total}
+          loaded={chartLoaded}
+        />
       </motion.div>
 
       {/* Grille des portefeuilles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {PORTFOLIOS.map(({ label, href, amount, pnl, pct, color, border, bg, links }, i) => {
+        {PORTFOLIOS.map(({ label, href, amount, pnl, pct, color, border, bg, loaded, links }, i) => {
           const isUp = pnl >= 0;
           const hasData = amount > 0;
           const hasPnl = pnl !== 0 || pct !== 0;
+
+          const isBourse = label === "Bourse";
+
+          const body = (
+            <>
+              <div className="h-9 flex items-center mb-1">
+                {loaded ? (
+                  <div className="text-3xl font-bold tabular-nums">
+                    {hasData ? `${amount.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€` : "—"}
+                  </div>
+                ) : (
+                  <Spinner className="w-5 h-5 text-muted-foreground" />
+                )}
+              </div>
+
+              {loaded && hasData && hasPnl && (
+                <div className={cn("flex items-center gap-1.5 text-sm", isUp ? "text-primary" : "text-destructive")}>
+                  {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                  <span>{isUp ? "+" : ""}{pnl.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
+                  <span className="text-muted-foreground">({isUp ? "+" : ""}{pct.toFixed(1)}%)</span>
+                </div>
+              )}
+
+              {links.length > 0 && (
+                <div className="flex gap-3 mt-4 pt-4 border-t border-border/50">
+                  {links.map(l => (
+                    <Link key={l.href} href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          );
 
           return (
             <motion.div key={label} initial="hidden" animate="visible" custom={0.1 + i * 0.05} variants={fadeUp}>
@@ -157,27 +221,7 @@ export default function HomePage() {
                     </Link>
                   </div>
 
-                  <div className="text-3xl font-bold tabular-nums mb-1">
-                    {hasData ? `${amount.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€` : "—"}
-                  </div>
-
-                  {hasData && hasPnl && (
-                    <div className={cn("flex items-center gap-1.5 text-sm", isUp ? "text-primary" : "text-destructive")}>
-                      {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                      <span>{isUp ? "+" : ""}{pnl.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</span>
-                      <span className="text-muted-foreground">({isUp ? "+" : ""}{pct.toFixed(1)}%)</span>
-                    </div>
-                  )}
-
-                  {links.length > 0 && (
-                    <div className="flex gap-3 mt-4 pt-4 border-t border-border/50">
-                      {links.map(l => (
-                        <Link key={l.href} href={l.href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                          {l.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  {isBourse ? <AuthLock>{body}</AuthLock> : body}
                 </CardContent>
               </Card>
             </motion.div>

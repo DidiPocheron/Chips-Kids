@@ -7,6 +7,9 @@ import { useSessionStore } from "@/hooks/useSessionStore";
 import { cn } from "@/lib/utils";
 import { getDayNumber, CHALLENGE_INITIAL } from "@/lib/config";
 import { RATING_CONFIG, RATING_OPTIONS } from "@/lib/ratings";
+import { SortOrderToggle, type SortOrder } from "@/components/SortOrderToggle";
+import { PageLoader } from "@/components/PageLoader";
+import { cumulativeFeesAsOf } from "@/lib/pokerFees";
 import type { SessionPost, SessionRating } from "@/types";
 
 function formatDate(dateStr: string) {
@@ -86,6 +89,12 @@ function SessionCard({ post, prevTotal }: { post: SessionPost; prevTotal: number
   const deltaStart = post.bankroll.total - CHALLENGE_INITIAL;
   const deltaStartPct = (deltaStart / CHALLENGE_INITIAL) * 100;
   const isLong = post.description.length > 280;
+  // Argent réellement gagné au poker : la bankroll seule sous-estime ce que
+  // le poker a rapporté dès qu'une partie en a été dépensée hors-jeu (matériel,
+  // formation, frais de tournoi...) -- ces frais sont donc réintégrés ici.
+  const fees = cumulativeFeesAsOf(post.date);
+  const pokerWinnings = post.bankroll.total - CHALLENGE_INITIAL + fees.total;
+  const pokerWinningsPct = (pokerWinnings / CHALLENGE_INITIAL) * 100;
 
   return (
     <Card className={cn("border-l-4 hover:shadow-md transition-shadow", cfg.accent)}>
@@ -101,6 +110,7 @@ function SessionCard({ post, prevTotal }: { post: SessionPost; prevTotal: number
             </div>
           </div>
           <div className="text-right shrink-0">
+            <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">Bankroll</div>
             <div className="text-lg font-bold tabular-nums">
               {post.bankroll.total.toLocaleString("fr-FR")}€
             </div>
@@ -116,6 +126,18 @@ function SessionCard({ post, prevTotal }: { post: SessionPost; prevTotal: number
                 <span className="text-muted-foreground mr-1">Progression</span>
                 {deltaStart >= 0 ? "+" : ""}{deltaStart.toLocaleString("fr-FR")}€
                 <span className="ml-1">({deltaStartPct >= 0 ? "+" : ""}{deltaStartPct.toFixed(1)}%)</span>
+              </div>
+              <div
+                className={cn("text-xs tabular-nums opacity-60", pokerWinnings >= 0 ? "text-green-600" : "text-destructive")}
+                title={
+                  fees.total > 0
+                    ? `Bankroll (${post.bankroll.total.toLocaleString("fr-FR")}€) - mise de départ (${CHALLENGE_INITIAL}€) + frais hors-jeu réintégrés (${fees.items.map((f) => `${f.label} ${f.amount}€`).join(", ")})`
+                    : `Bankroll (${post.bankroll.total.toLocaleString("fr-FR")}€) - mise de départ (${CHALLENGE_INITIAL}€)`
+                }
+              >
+                <span className="text-muted-foreground mr-1">Argent gagné au poker</span>
+                {pokerWinnings >= 0 ? "+" : ""}{pokerWinnings.toLocaleString("fr-FR")}€
+                <span className="ml-1">({pokerWinningsPct >= 0 ? "+" : ""}{pokerWinningsPct.toFixed(1)}%)</span>
               </div>
             </div>
           </div>
@@ -142,8 +164,10 @@ function SessionCard({ post, prevTotal }: { post: SessionPost; prevTotal: number
           <span>Winamax <span className="font-medium text-foreground tabular-nums">{post.bankroll.winamax}€</span></span>
           <span>PokerStars <span className="font-medium text-foreground tabular-nums">{post.bankroll.pokerstars}€</span></span>
           <span>PMU <span className="font-medium text-foreground tabular-nums">{post.bankroll.pmu ?? 0}€</span></span>
+          <span>Betclic <span className="font-medium text-foreground tabular-nums">{post.bankroll.betclic ?? 0}€</span></span>
           <span>Porte-monnaie <span className="font-medium text-foreground tabular-nums">{post.bankroll.wallet}€</span></span>
         </div>
+
       </CardContent>
     </Card>
   );
@@ -153,6 +177,7 @@ export default function LogbookPage() {
   const { sessions, loaded } = useSessionStore();
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
   const [selectedRating, setSelectedRating] = useState<SessionRating | "all">("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   const months = sessions.reduce<{ value: string; label: string }[]>((acc, post) => {
     const d = new Date(post.date + "T12:00:00");
@@ -170,7 +195,12 @@ export default function LogbookPage() {
     })
     .filter((p) => selectedRating === "all" || p.rating === selectedRating);
 
-  const grouped = filtered.reduce<Record<string, SessionPost[]>>((acc, post) => {
+  // `sessions` reste trié du plus récent au plus ancien (ordre Firestore, dont
+  // dépend getPrevTotal ci-dessous) : le switch n'inverse que l'ordre
+  // d'affichage, jamais `sessions`/`filtered` eux-mêmes.
+  const orderedFiltered = sortOrder === "asc" ? [...filtered].reverse() : filtered;
+
+  const grouped = orderedFiltered.reduce<Record<string, SessionPost[]>>((acc, post) => {
     const label = new Date(post.date + "T12:00:00").toLocaleDateString("fr-FR", {
       month: "long",
       year: "numeric",
@@ -188,9 +218,12 @@ export default function LogbookPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-1">Carnet de bord</h1>
-        <p className="text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? "s" : ""} documentée{sessions.length !== 1 ? "s" : ""}</p>
+      <div className="flex items-start justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-1">Carnet de bord</h1>
+          <p className="text-muted-foreground">{sessions.length} session{sessions.length !== 1 ? "s" : ""} documentée{sessions.length !== 1 ? "s" : ""}</p>
+        </div>
+        <SortOrderToggle order={sortOrder} onChange={setSortOrder} className="mt-1 shrink-0" />
       </div>
 
       {/* Filtres */}
@@ -238,6 +271,8 @@ export default function LogbookPage() {
           })}
         </div>
       </div>
+
+      {!loaded && <PageLoader />}
 
       {/* État vide */}
       {loaded && sessions.length === 0 && (

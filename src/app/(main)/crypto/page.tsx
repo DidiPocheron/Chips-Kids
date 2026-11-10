@@ -7,17 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BankrollChart } from "@/components/bankroll/BankrollChart";
 import { CryptoTicketCharts } from "@/components/crypto/CryptoTicketCharts";
+import { CryptoQuantityCharts } from "@/components/crypto/CryptoQuantityCharts";
 import { TrendingUp, TrendingDown, Euro, Percent, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePortfolioStore } from "@/hooks/usePortfolioStore";
 import { useCryptoTicketStore } from "@/hooks/useCryptoTicketStore";
 import { IS_ADMIN } from "@/lib/config";
+import { PageLoader } from "@/components/PageLoader";
 
 const COLLECTION = "portfolio_crypto";
 
 export default function CryptoPage() {
   const { entries, addEntry, deleteEntry, currentAmount, firstAmount, loaded } = usePortfolioStore(COLLECTION);
-  const { tickets } = useCryptoTicketStore();
+  const { tickets, loaded: ticketsLoaded } = useCryptoTicketStore();
   const [showForm, setShowForm] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [amount, setAmount] = useState("");
@@ -35,6 +37,7 @@ export default function CryptoPage() {
   const pct = firstAmount > 0 ? (pnl / firstAmount) * 100 : 0;
   const isUp = pnl >= 0;
   const hasData = entries.length > 0;
+  const pageLoaded = loaded && ticketsLoaded;
 
   async function handleSubmit() {
     if (!amount) return;
@@ -87,7 +90,9 @@ export default function CryptoPage() {
         </Card>
       )}
 
-      {!hasData && loaded && tickets.length === 0 ? (
+      {!pageLoaded ? (
+        <PageLoader />
+      ) : !hasData && tickets.length === 0 ? (
         <div className="text-center py-24 text-muted-foreground">
           <p>Aucune donnée pour l&apos;instant.</p>
           {IS_ADMIN && <p className="text-sm mt-1">Clique sur &quot;Mettre à jour&quot; pour ajouter la valeur actuelle.</p>}
@@ -145,6 +150,13 @@ export default function CryptoPage() {
             <Card className="mb-8">
               <CardHeader><CardTitle className="text-base">Évolution par ticket</CardTitle></CardHeader>
               <CardContent><CryptoTicketCharts tickets={tickets} /></CardContent>
+            </Card>
+          )}
+
+          {tickets.length > 0 && (
+            <Card className="mb-8">
+              <CardHeader><CardTitle className="text-base">Quantités détenues (cumulées)</CardTitle></CardHeader>
+              <CardContent><CryptoQuantityCharts tickets={tickets} /></CardContent>
             </Card>
           )}
 

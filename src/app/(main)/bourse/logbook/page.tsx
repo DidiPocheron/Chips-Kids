@@ -6,7 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useBourseTicketStore } from "@/hooks/useBourseTicketStore";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { SortOrderToggle, type SortOrder } from "@/components/SortOrderToggle";
+import { PageLoader } from "@/components/PageLoader";
 import type { BourseTicket } from "@/types";
+import { AuthLock } from "@/components/auth/AuthLock";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-FR", {
@@ -128,26 +131,35 @@ function TicketCard({ ticket }: { ticket: BourseTicket }) {
 
 export default function BourseLogbookPage() {
   const { tickets, loaded } = useBourseTicketStore();
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   const sortedTickets = useMemo(
-    () => [...tickets].sort((a, b) => b.date.localeCompare(a.date)),
-    [tickets]
+    () => [...tickets].sort((a, b) =>
+      sortOrder === "desc" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)
+    ),
+    [tickets, sortOrder]
   );
 
   return (
+    <AuthLock>
     <div className="container mx-auto px-4 py-10 max-w-3xl">
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-1">Bourse — Carnet de bord</h1>
           <p className="text-muted-foreground">{tickets.length} ticket{tickets.length !== 1 ? "s" : ""}</p>
         </div>
-        <Link
-          href="/bourse"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1"
-        >
-          <ArrowLeft className="w-4 h-4" /> Chiffres
-        </Link>
+        <div className="flex flex-col items-end gap-2 mt-1">
+          <SortOrderToggle order={sortOrder} onChange={setSortOrder} />
+          <Link
+            href="/bourse"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Chiffres
+          </Link>
+        </div>
       </div>
+
+      {!loaded && <PageLoader />}
 
       {loaded && tickets.length === 0 && (
         <div className="text-center py-20">
@@ -162,5 +174,6 @@ export default function BourseLogbookPage() {
         ))}
       </div>
     </div>
+    </AuthLock>
   );
 }

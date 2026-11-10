@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/hooks/useSessionStore";
+import { Spinner } from "@/components/ui/spinner";
 
 function TierCard({ tier, current }: { tier: (typeof BANKROLL_TIERS)[0]; current: number }) {
   const isActive = current >= tier.minAmount && (tier.maxAmount === null || current < tier.maxAmount);
@@ -69,11 +70,16 @@ function TierCard({ tier, current }: { tier: (typeof BANKROLL_TIERS)[0]; current
 }
 
 export default function BankrollManagementPage() {
-  const { currentBankroll } = useSessionStore();
-  const CURRENT_BANKROLL = currentBankroll.total;
-  const currentTier = BANKROLL_TIERS.find(
-    (t) => CURRENT_BANKROLL >= t.minAmount && (t.maxAmount === null || CURRENT_BANKROLL < t.maxAmount)
-  );
+  const { currentBankroll, loaded } = useSessionStore();
+  // Tant que la vraie bankroll n'est pas arrivée, on évite de mettre en
+  // avant un palier basé sur la valeur par défaut (500€) -- aucun palier
+  // n'est marqué actif/dépassé le temps du chargement.
+  const CURRENT_BANKROLL = loaded ? currentBankroll.total : Number.NEGATIVE_INFINITY;
+  const currentTier = loaded
+    ? BANKROLL_TIERS.find(
+        (t) => CURRENT_BANKROLL >= t.minAmount && (t.maxAmount === null || CURRENT_BANKROLL < t.maxAmount)
+      )
+    : undefined;
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-4xl">
@@ -87,8 +93,8 @@ export default function BankrollManagementPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-muted-foreground mb-1">Bankroll actuelle</div>
-              <div className="text-3xl font-bold text-primary">
-                {CURRENT_BANKROLL.toLocaleString("fr-FR")}€
+              <div className="text-3xl font-bold text-primary h-9 flex items-center">
+                {loaded ? `${currentBankroll.total.toLocaleString("fr-FR")}€` : <Spinner className="w-5 h-5" />}
               </div>
             </div>
             {currentTier && (
@@ -121,8 +127,8 @@ export default function BankrollManagementPage() {
                 <div className="font-semibold">{currentTier.tournaments}</div>
               </div>
               <div>
-                <div className="text-muted-foreground mb-1">Expressos</div>
-                <div className="font-semibold">{currentTier.expressos}</div>
+                <div className="text-muted-foreground mb-1">Spins</div>
+                <div className="font-semibold">{currentTier.spins}</div>
               </div>
               <div>
                 <div className="text-muted-foreground mb-1">Buy-in minimum</div>
@@ -137,6 +143,10 @@ export default function BankrollManagementPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Récapitulatif des paliers</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            Profil sérieux : au moins 200 buy-ins du buy-in le plus élevé joué, en tournois comme en spins.
+            On redescend d&apos;un palier dès que la bankroll repasse sous son seuil.
+          </p>
         </CardHeader>
         <CardContent>
           <Table>
@@ -144,7 +154,7 @@ export default function BankrollManagementPage() {
               <TableRow>
                 <TableHead>Bankroll</TableHead>
                 <TableHead>Tournois</TableHead>
-                <TableHead>Expressos</TableHead>
+                <TableHead>Spins</TableHead>
                 <TableHead className="hidden sm:table-cell">Buy-in min.</TableHead>
               </TableRow>
             </TableHeader>
@@ -155,7 +165,7 @@ export default function BankrollManagementPage() {
                   <TableRow key={tier.label} className={isActive ? "bg-primary/5" : ""}>
                     <TableCell className={cn("font-medium", isActive && "text-primary")}>{tier.label}</TableCell>
                     <TableCell>{tier.tournaments}</TableCell>
-                    <TableCell>{tier.expressos}</TableCell>
+                    <TableCell>{tier.spins}</TableCell>
                     <TableCell className="hidden sm:table-cell text-xs text-muted-foreground">{tier.minBuyIn}</TableCell>
                   </TableRow>
                 );

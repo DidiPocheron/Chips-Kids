@@ -1,20 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import type { ReactNode } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Toggle pour afficher/masquer la section Immobilier sur le site.
-const SHOW_IMMOBILIER = true;
+import { useAppAuth } from "@/hooks/useAppAuth";
 
 const NAV_LINKS_POKER = [
   { href: "/bankroll", label: "Résultats" },
   { href: "/logbook", label: "Carnet de bord" },
   { href: "/bankroll-management", label: "BRM" },
-  { href: "/poker/cotes", label: "Cotes" },
-  { href: "/poker/leaks", label: "Leaks" },
 ];
 
 const NAV_LINKS_CRYPTO = [
@@ -24,34 +21,20 @@ const NAV_LINKS_CRYPTO = [
 
 const NAV_LINKS_BOURSE = [
   { href: "/bourse", label: "Chiffres" },
+  { href: "/bourse/portefeuille", label: "Portefeuille en direct" },
   { href: "/bourse/logbook", label: "Carnet de bord" },
   { href: "/bourse/historique", label: "Historique compte titre 2019–2026" },
   { href: "/bourse/historique-pea", label: "Historique PEA 2017–2026" },
 ];
 
-const NAV_LINKS_TRADING = [
-  { href: "/trading", label: "Chiffres" },
-  { href: "/trading/strategie", label: "Stratégie" },
-];
-
-const NAV_LINKS_IMMOBILIER = [
-  { href: "/immobilier", label: "Vente & emprunt" },
-];
-
 const POKER_PATHS = NAV_LINKS_POKER.map(l => l.href);
 const CRYPTO_PATHS = NAV_LINKS_CRYPTO.map(l => l.href);
 const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
-const TRADING_PATHS = NAV_LINKS_TRADING.map(l => l.href);
-const IMMOBILIER_PATHS = NAV_LINKS_IMMOBILIER.map(l => l.href);
 
 const NAV_GROUPS = [
   { label: "Poker", links: NAV_LINKS_POKER, color: "text-primary", border: "border-primary/20", bg: "bg-primary/5" },
   { label: "Crypto", links: NAV_LINKS_CRYPTO, color: "text-orange-400", border: "border-orange-400/20", bg: "bg-orange-400/5" },
   { label: "Bourse", links: NAV_LINKS_BOURSE, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/5" },
-  { label: "Trading", links: NAV_LINKS_TRADING, color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/5" },
-  ...(SHOW_IMMOBILIER
-    ? [{ label: "Immobilier", links: NAV_LINKS_IMMOBILIER, color: "text-rose-400", border: "border-rose-400/20", bg: "bg-rose-400/5" }]
-    : []),
 ];
 
 function NavDropdown({
@@ -59,11 +42,13 @@ function NavDropdown({
   links,
   activePaths,
   pathname,
+  footer,
 }: {
   label: string;
   links: { href: string; label: string }[];
   activePaths: string[];
   pathname: string;
+  footer?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -109,6 +94,7 @@ function NavDropdown({
               {lbl}
             </Link>
           ))}
+          {footer}
         </div>
       )}
     </div>
@@ -118,6 +104,14 @@ function NavDropdown({
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+  const { unlocked: bourseUnlocked, logout: bourseLogout } = useAppAuth();
+  const bourseActive = BOURSE_PATHS.some(p => pathname === p || pathname.startsWith(p + "/"));
+
+  function handleBourseLogout() {
+    bourseLogout();
+    router.push("/");
+  }
 
   useEffect(() => {
     setMobileOpen(false);
@@ -139,15 +133,35 @@ export function Header() {
           <div className="w-px h-4 bg-border mx-1" />
           <NavDropdown label="Crypto" links={NAV_LINKS_CRYPTO} activePaths={CRYPTO_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
-          <NavDropdown label="Bourse" links={NAV_LINKS_BOURSE} activePaths={BOURSE_PATHS} pathname={pathname} />
-          <div className="w-px h-4 bg-border mx-1" />
-          <NavDropdown label="Trading" links={NAV_LINKS_TRADING} activePaths={TRADING_PATHS} pathname={pathname} />
-          {SHOW_IMMOBILIER && (
-            <>
-              <div className="w-px h-4 bg-border mx-1" />
-              <NavDropdown label="Immobilier" links={NAV_LINKS_IMMOBILIER} activePaths={IMMOBILIER_PATHS} pathname={pathname} />
-            </>
+          {bourseUnlocked ? (
+            <NavDropdown
+              label="Bourse"
+              links={NAV_LINKS_BOURSE}
+              activePaths={BOURSE_PATHS}
+              pathname={pathname}
+              footer={
+                <button
+                  onClick={handleBourseLogout}
+                  className="w-full text-left px-4 py-2 mt-1 pt-2 border-t border-border text-sm text-muted-foreground hover:text-destructive hover:bg-muted/50 transition-colors"
+                >
+                  Se déconnecter
+                </button>
+              }
+            />
+          ) : (
+            <Link
+              href="/login"
+              className={cn(
+                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                bourseActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              Bourse
+            </Link>
           )}
+          <div className="w-px h-4 bg-border mx-1" />
         </nav>
 
         {/* Mobile toggle */}
@@ -165,29 +179,44 @@ export function Header() {
       {mobileOpen && (
         <nav className="md:hidden border-t border-border bg-card px-4 py-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="grid grid-cols-2 gap-3">
-            {NAV_GROUPS.map((group) => (
-              <div key={group.label} className={cn("rounded-xl border p-3", group.border, group.bg)}>
-                <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", group.color)}>
-                  {group.label}
-                </p>
-                <div className="flex flex-col gap-0.5">
-                  {group.links.map(({ href, label }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={cn(
-                        "px-2 py-1.5 -mx-2 rounded-lg text-sm font-medium transition-colors",
-                        pathname === href
-                          ? "bg-card text-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground hover:bg-card/60"
-                      )}
-                    >
-                      {label}
-                    </Link>
-                  ))}
+            {NAV_GROUPS.map((group) => {
+              const isBourseGroup = group.label === "Bourse";
+              const links = isBourseGroup && !bourseUnlocked
+                ? [{ href: "/login", label: "Se connecter" }]
+                : group.links;
+
+              return (
+                <div key={group.label} className={cn("rounded-xl border p-3", group.border, group.bg)}>
+                  <p className={cn("text-xs font-semibold uppercase tracking-wide mb-2", group.color)}>
+                    {group.label}
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {links.map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className={cn(
+                          "px-2 py-1.5 -mx-2 rounded-lg text-sm font-medium transition-colors",
+                          pathname === href
+                            ? "bg-card text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                        )}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                    {isBourseGroup && bourseUnlocked && (
+                      <button
+                        onClick={handleBourseLogout}
+                        className="px-2 py-1.5 -mx-2 mt-1 pt-2 border-t border-border/50 rounded-lg text-sm font-medium text-left text-muted-foreground hover:text-destructive hover:bg-card/60 transition-colors"
+                      >
+                        Se déconnecter
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </nav>
       )}
