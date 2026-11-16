@@ -10,7 +10,6 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { AuthLock } from "@/components/auth/AuthLock";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -142,7 +141,7 @@ function fmtEur(v: number, sign = false) {
 
 export default function HistoriquePEAPage() {
   return (
-    <AuthLock>
+    <>
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
 
@@ -402,6 +401,6 @@ export default function HistoriquePEAPage() {
 
       </div>
     </div>
-    </AuthLock>
+    </>
   );
 }

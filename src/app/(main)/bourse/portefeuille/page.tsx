@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 import { useStockQuotes, type QuotesResponse } from "@/hooks/useStockQuotes";
 import { STOCK_POSITIONS, CRYPTO_POSITIONS, type StockPosition } from "@/data/stockPositions";
-import { AuthLock } from "@/components/auth/AuthLock";
 import { Spinner } from "@/components/ui/spinner";
 
 const REFRESH_MS = 90_000;
@@ -168,7 +167,7 @@ export default function PortefeuillePage() {
     : null;
 
   return (
-    <AuthLock>
+    <>
     <div className="container mx-auto px-4 py-10 max-w-5xl">
       <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
         <div>
@@ -361,6 +360,6 @@ export default function PortefeuillePage() {
         renvoyer de cours à jour — la ligne est alors valorisée à son PRU et signalée par un badge.
       </p>
     </div>
-    </AuthLock>
+    </>
   );
 }

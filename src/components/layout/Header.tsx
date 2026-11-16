@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAppAuth } from "@/hooks/useAppAuth";
 import { HIDE_POKER } from "@/lib/config";
 
 const NAV_LINKS_POKER = [
@@ -105,14 +104,6 @@ function NavDropdown({
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
-  const { unlocked: bourseUnlocked, logout: bourseLogout } = useAppAuth();
-  const bourseActive = BOURSE_PATHS.some(p => pathname === p || pathname.startsWith(p + "/"));
-
-  function handleBourseLogout() {
-    bourseLogout();
-    router.push("/");
-  }
 
   useEffect(() => {
     setMobileOpen(false);
@@ -138,34 +129,7 @@ export function Header() {
           )}
           <NavDropdown label="Crypto" links={NAV_LINKS_CRYPTO} activePaths={CRYPTO_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
-          {bourseUnlocked ? (
-            <NavDropdown
-              label="Bourse"
-              links={NAV_LINKS_BOURSE}
-              activePaths={BOURSE_PATHS}
-              pathname={pathname}
-              footer={
-                <button
-                  onClick={handleBourseLogout}
-                  className="w-full text-left px-4 py-2 mt-1 pt-2 border-t border-border text-sm text-muted-foreground hover:text-destructive hover:bg-muted/50 transition-colors"
-                >
-                  Se déconnecter
-                </button>
-              }
-            />
-          ) : (
-            <Link
-              href="/login"
-              className={cn(
-                "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                bourseActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              Bourse
-            </Link>
-          )}
+          <NavDropdown label="Bourse" links={NAV_LINKS_BOURSE} activePaths={BOURSE_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
         </nav>
 
@@ -185,10 +149,7 @@ export function Header() {
         <nav className="md:hidden border-t border-border bg-card px-4 py-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="grid grid-cols-2 gap-3">
             {NAV_GROUPS.map((group) => {
-              const isBourseGroup = group.label === "Bourse";
-              const links = isBourseGroup && !bourseUnlocked
-                ? [{ href: "/login", label: "Se connecter" }]
-                : group.links;
+              const links = group.links;
 
               return (
                 <div key={group.label} className={cn("rounded-xl border p-3", group.border, group.bg)}>
@@ -210,14 +171,6 @@ export function Header() {
                         {label}
                       </Link>
                     ))}
-                    {isBourseGroup && bourseUnlocked && (
-                      <button
-                        onClick={handleBourseLogout}
-                        className="px-2 py-1.5 -mx-2 mt-1 pt-2 border-t border-border/50 rounded-lg text-sm font-medium text-left text-muted-foreground hover:text-destructive hover:bg-card/60 transition-colors"
-                      >
-                        Se déconnecter
-                      </button>
-                    )}
                   </div>
                 </div>
               );

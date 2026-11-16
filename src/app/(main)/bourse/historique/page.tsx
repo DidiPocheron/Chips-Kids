@@ -11,7 +11,6 @@ import {
   ResponsiveContainer, ReferenceLine, Cell,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { AuthLock } from "@/components/auth/AuthLock";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -200,7 +199,7 @@ export default function BourseHistoriquePage() {
   const pnlEconomique = 10272;
 
   return (
-    <AuthLock>
+    <>
     <div className="container mx-auto px-4 py-10 max-w-5xl">
       <Link
         href="/bourse"
@@ -512,6 +511,6 @@ export default function BourseHistoriquePage() {
         Les gains/pertes réalisés et dividendes sont issus des rapports officiels. Les valeurs de portefeuille trimestrielles proviennent des relevés d&apos;instruments au cours de clôture à la date de reporting.
       </div>
     </div>
-    </AuthLock>
+    </>
   );
 }

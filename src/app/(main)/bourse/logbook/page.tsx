@@ -9,7 +9,6 @@ import { ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { SortOrderToggle, type SortOrder } from "@/components/SortOrderToggle";
 import { PageLoader } from "@/components/PageLoader";
 import type { BourseTicket } from "@/types";
-import { AuthLock } from "@/components/auth/AuthLock";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr + "T12:00:00").toLocaleDateString("fr-FR", {
@@ -141,7 +140,7 @@ export default function BourseLogbookPage() {
   );
 
   return (
-    <AuthLock>
+    <>
     <div className="container mx-auto px-4 py-10 max-w-3xl">
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
@@ -174,6 +173,6 @@ export default function BourseLogbookPage() {
         ))}
       </div>
     </div>
-    </AuthLock>
+    </>
   );
 }

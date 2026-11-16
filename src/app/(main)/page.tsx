@@ -12,7 +12,6 @@ import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 import { usePortfolioStore } from "@/hooks/usePortfolioStore";
 import { cn } from "@/lib/utils";
 import { HIDE_POKER } from "@/lib/config";
-import { AuthLock } from "@/components/auth/AuthLock";
 import { Spinner } from "@/components/ui/spinner";
 import { ConsolidatedChart } from "@/components/ConsolidatedChart";
 import type { DatedValue } from "@/lib/consolidatedSeries";
@@ -183,7 +182,6 @@ export default function HomePage() {
           const hasData = amount > 0;
           const hasPnl = pnl !== 0 || pct !== 0;
 
-          const isBourse = label === "Bourse";
 
           const body = (
             <>
@@ -228,7 +226,7 @@ export default function HomePage() {
                     </Link>
                   </div>
 
-                  {isBourse ? <AuthLock>{body}</AuthLock> : body}
+                  {body}
                 </CardContent>
               </Card>
             </motion.div>

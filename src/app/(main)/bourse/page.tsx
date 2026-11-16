@@ -8,7 +8,6 @@ import { TrendingUp, TrendingDown, Euro, Percent, History, Activity } from "luci
 import { cn } from "@/lib/utils";
 import { useBourseTicketStore } from "@/hooks/useBourseTicketStore";
 import { PageLoader } from "@/components/PageLoader";
-import { AuthLock } from "@/components/auth/AuthLock";
 
 export default function BoursePage() {
   const { tickets, loaded } = useBourseTicketStore();
@@ -56,7 +55,7 @@ export default function BoursePage() {
   const hasData = tickets.length > 0;
 
   return (
-    <AuthLock>
+    <>
     <div className="container mx-auto px-4 py-10 max-w-5xl">
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -153,6 +152,6 @@ export default function BoursePage() {
         </>
       )}
     </div>
-    </AuthLock>
+    </>
   );
 }
