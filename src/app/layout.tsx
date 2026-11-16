@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Nunito } from "next/font/google";
 import "./globals.css";
+import { HIDE_POKER } from "@/lib/config";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -15,8 +16,10 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Chips & Trade",
-  description: "Suivi de mes portefeuilles : poker, bourse et crypto.",
+  title: "Les finances",
+  description: HIDE_POKER
+    ? "Suivi de mes portefeuilles : bourse et crypto."
+    : "Suivi de mes portefeuilles : poker, bourse et crypto.",
 };
 
 export default function RootLayout({

@@ -11,6 +11,7 @@ import { useCryptoTicketStore } from "@/hooks/useCryptoTicketStore";
 import { useCryptoPrices } from "@/hooks/useCryptoPrices";
 import { usePortfolioStore } from "@/hooks/usePortfolioStore";
 import { cn } from "@/lib/utils";
+import { HIDE_POKER } from "@/lib/config";
 import { AuthLock } from "@/components/auth/AuthLock";
 import { Spinner } from "@/components/ui/spinner";
 import { ConsolidatedChart } from "@/components/ConsolidatedChart";
@@ -37,11 +38,13 @@ export default function HomePage() {
   // en direct (Kraken) : tant que l'un des deux n'est pas arrivé, le montant
   // calculé serait faux (basé sur un prix à 0) -- on attend les deux.
   const cryptoLoaded = cryptoTicketsLoaded && !pricesLoading;
-  const allLoaded = sessionsLoaded && bourseLoaded && cryptoLoaded;
+  // Avec HIDE_POKER, les sessions poker ne comptent plus : inutile de les attendre.
+  const pokerLoaded = HIDE_POKER || sessionsLoaded;
+  const allLoaded = pokerLoaded && bourseLoaded && cryptoLoaded;
   // Le graphique d'évolution a sa propre condition de chargement : il a aussi
   // besoin de l'historique des entrées crypto manuelles (non requis pour le
   // gros chiffre "Total consolidé" ci-dessus).
-  const chartLoaded = sessionsLoaded && bourseLoaded && cryptoEntriesLoaded && cryptoLoaded;
+  const chartLoaded = pokerLoaded && bourseLoaded && cryptoEntriesLoaded && cryptoLoaded;
 
   const bourse = useMemo(() => {
     if (bourseTickets.length === 0) return { currentAmount: 0, pnl: 0, invested: 0 };
@@ -72,7 +75,7 @@ export default function HomePage() {
   // Séries datées pour le graphique d'évolution : chaque source garde sa
   // propre valeur réelle à sa propre date (voir src/lib/consolidatedSeries.ts).
   const pokerPoints: DatedValue[] = useMemo(
-    () => sessions.map((s) => ({ date: s.date, value: s.bankroll.total })),
+    () => (HIDE_POKER ? [] : sessions.map((s) => ({ date: s.date, value: s.bankroll.total }))),
     [sessions]
   );
   const boursePoints: DatedValue[] = useMemo(
@@ -84,9 +87,11 @@ export default function HomePage() {
     [cryptoEntries]
   );
 
-  const total = currentBankroll.total + bourse.currentAmount + crypto.currentAmount;
+  // Bankroll poker exclue du total quand la partie poker est masquée.
+  const pokerAmount = HIDE_POKER ? 0 : currentBankroll.total;
+  const total = pokerAmount + bourse.currentAmount + crypto.currentAmount;
 
-  const PORTFOLIOS = [
+  const ALL_PORTFOLIOS = [
     {
       label: "Poker",
       href: "/bankroll",
@@ -137,11 +142,13 @@ export default function HomePage() {
     },
   ];
 
+  const PORTFOLIOS = ALL_PORTFOLIOS.filter((p) => !(HIDE_POKER && p.label === "Poker"));
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <motion.div initial="hidden" animate="visible" custom={0} variants={fadeUp} className="mb-10">
         <h1 className="font-heading text-4xl md:text-5xl font-bold mb-1 tracking-tight">
-          Chips <span className="text-[#5B9FD4]">&</span> Trade
+          Les finances
         </h1>
         <p className="text-muted-foreground">Suivi de mes portefeuilles</p>
       </motion.div>

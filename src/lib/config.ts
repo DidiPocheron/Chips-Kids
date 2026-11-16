@@ -1,5 +1,10 @@
 export const IS_ADMIN = false;
 
+// Masque toute la partie poker du site quand il vaut true : liens du menu,
+// carte et chiffres de l'accueil, pages poker (qui renvoient alors une 404),
+// et la bankroll poker est exclue du total consolidé et de son graphique.
+export const HIDE_POKER = true;
+
 export const CHALLENGE_START = "2026-06-16";
 export const CHALLENGE_INITIAL = 500;
 

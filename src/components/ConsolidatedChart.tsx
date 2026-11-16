@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { buildConsolidatedSeries, type DatedValue } from "@/lib/consolidatedSeries";
 
-const ACCENT = "#5B9FD4"; // bleu de la marque, repris du titre "Chips & Trade"
+const ACCENT = "#5B9FD4"; // bleu de la marque
 // Avant cette date, les montants ne sont pas représentatifs (ex: tout début
 // de suivi) -- on les exclut de la courbe plutôt que de fausser l'échelle.
 const CHART_START_DATE = "2026-07-18";

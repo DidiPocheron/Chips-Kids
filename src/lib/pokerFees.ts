@@ -27,6 +27,7 @@ export const POKER_FEES: PokerFee[] = [
   // date pour le cumul par session).
   { date: "2026-10-26", label: "Argent pour la famille ❤️", amount: 200 },
   { date: "2026-11-03", label: "Argent pour la famille ❤️", amount: 270 },
+  { date: "2026-11-13", label: "Argent pour la famille ❤️", amount: 200 },
   { date: "2026-11-06", label: "Anniversaire de mon chaton ❤️", amount: 500 },
 ];
 

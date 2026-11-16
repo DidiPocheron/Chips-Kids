@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/hooks/useAppAuth";
+import { HIDE_POKER } from "@/lib/config";
 
 const NAV_LINKS_POKER = [
   { href: "/bankroll", label: "Résultats" },
@@ -32,7 +33,7 @@ const CRYPTO_PATHS = NAV_LINKS_CRYPTO.map(l => l.href);
 const BOURSE_PATHS = NAV_LINKS_BOURSE.map(l => l.href);
 
 const NAV_GROUPS = [
-  { label: "Poker", links: NAV_LINKS_POKER, color: "text-primary", border: "border-primary/20", bg: "bg-primary/5" },
+  ...(HIDE_POKER ? [] : [{ label: "Poker", links: NAV_LINKS_POKER, color: "text-primary", border: "border-primary/20", bg: "bg-primary/5" }]),
   { label: "Crypto", links: NAV_LINKS_CRYPTO, color: "text-orange-400", border: "border-orange-400/20", bg: "bg-orange-400/5" },
   { label: "Bourse", links: NAV_LINKS_BOURSE, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/5" },
 ];
@@ -123,14 +124,18 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
           <img src="/logo-requin.png" alt="Logo" className="w-8 h-8 object-contain shrink-0" />
           <span className="font-heading font-bold text-base sm:text-xl text-foreground tracking-tight truncate">
-            Chips <span className="text-[#5B9FD4]">&</span> Trade
+            Les finances
           </span>
         </Link>
 
         {/* Desktop */}
         <nav className="hidden md:flex items-center gap-1">
-          <NavDropdown label="Poker" links={NAV_LINKS_POKER} activePaths={POKER_PATHS} pathname={pathname} />
-          <div className="w-px h-4 bg-border mx-1" />
+          {!HIDE_POKER && (
+            <>
+              <NavDropdown label="Poker" links={NAV_LINKS_POKER} activePaths={POKER_PATHS} pathname={pathname} />
+              <div className="w-px h-4 bg-border mx-1" />
+            </>
+          )}
           <NavDropdown label="Crypto" links={NAV_LINKS_CRYPTO} activePaths={CRYPTO_PATHS} pathname={pathname} />
           <div className="w-px h-4 bg-border mx-1" />
           {bourseUnlocked ? (
